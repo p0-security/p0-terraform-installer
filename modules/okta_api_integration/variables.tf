@@ -6,10 +6,6 @@ variable "org_domain" {
   description = "This is the domain name of your Okta account, for example dev-123456.oktapreview.com."
 }
 
-variable "aws_federation_app_id" {
-  description = "The ID of the AWS Account Federation app in Okta that P0 manages access to"
-}
-
 variable "p0_org_id" {
   description = "This is the P0 organization ID"
 }

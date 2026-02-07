@@ -20,7 +20,6 @@ locals {
 }
 
 # The IAM role for host management is shared by all regions
-# To import: terraform import "module.aws_systems_manager.aws_iam_role.default_host_management_role" AWSSystemsManagerDefaultEC2InstanceManagementRole
 resource "aws_iam_role" "default_host_management_role" {
 
   provider = aws.default

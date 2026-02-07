@@ -10,34 +10,24 @@ terraform {
 }
 
 # Stages the installation of the P0 GCP IAM Management Integration
-# To import: terraform import module.p0_aws_iam_management.p0_aws_iam_write_staged.iam_write_staged {accountId}
 resource "p0_aws_iam_write_staged" "iam_write_staged" {
   partition = "aws"
-  id = var.aws_account_id
+  id        = var.aws_account_id
 }
 
-# Finalizes the installation of the P0 GCP IAM Management Integration
-# To import: terraform import module.p0_gcp_iam_management.p0_aws_iam_write.iam_write {accountId}
+# Finalizes the installation of the P0 AWS IAM Management Integration
 resource "p0_aws_iam_write" "iam_write" {
   id         = var.aws_account_id
   depends_on = [p0_aws_iam_write_staged.iam_write_staged]
-  partition = "aws"
+  partition  = "aws"
   login = {
-    type = "federated"
-    provider = {
-      app_id            = var.aws_okta_federation_app_id
-      identity_provider = var.aws_identity_provider
-      method = {
-        account_count = {
-          parent = "533267270629"
-          type   = "multi"
-        }
-      }
-    }
+    type = "idc"
+    parent = var.aws_account_id
   }
 }
 
 resource "p0_ssh_aws" "ssh" {
+  depends_on      = [p0_aws_iam_write.iam_write]
   account_id      = var.aws_account_id
   group_key       = var.aws_group_key
   is_sudo_enabled = var.aws_is_sudo_enabled

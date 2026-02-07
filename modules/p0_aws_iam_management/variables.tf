@@ -3,11 +3,6 @@ variable "aws_account_id" {
   type        = string
 }
 
-variable "aws_okta_federation_app_id" {
-  description = "The ID of the AWS Account Federation app in Okta that P0 manages access to"
-  type        = string
-}
-
 variable "aws_identity_provider" {
   description = "The name of the AWS Identity Provider used for login"
   type        = string

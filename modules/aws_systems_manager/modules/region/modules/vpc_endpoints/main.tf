@@ -63,7 +63,6 @@ data "aws_subnets" "selected_vpc_subnets" {
   }
 }
 
-# To import: terraform import "module.aws_systems_manager.module.region_{regionAlias}.module.aws_vpc_endpoint[\"{vpcId}\"].aws_vpc_endpoint.ssm_vpc_endpoints[\"ssm\"]" {vpcEndpointId}
 # Existing endpoints don't necessarily have to be imported because a "duplicate" VPC endpoint deployed by Terraform 
 # can exist next to the existing endpoint, for the same subnet. No error will be thrown.
 resource "aws_vpc_endpoint" "ssm_vpc_endpoints" {
