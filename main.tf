@@ -1,8 +1,8 @@
 terraform {
   backend "s3" {
-    bucket = "<enter bucket name here>"
-    key    = "<enter key name here>"
-    region = "<enter region here>"
+    bucket = "mike-d-tf-state"
+    key    = "p0-tf-install"
+    region = "us-west-2"
   }
   required_providers {
     okta = {

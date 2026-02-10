@@ -52,7 +52,7 @@ resource "okta_app_oauth_api_scope" "p0_api_integration_scopes" {
   scopes = [
     # Required for Okta group membership access
     "okta.users.read",
-    "okta.groups.read",
+    "okta.groups.manage",
   ]
 }
 
