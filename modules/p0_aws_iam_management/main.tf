@@ -16,12 +16,13 @@ resource "p0_aws_iam_write_staged" "iam_write_staged" {
 }
 
 # Finalizes the installation of the P0 AWS IAM Management Integration
+# To import: terraform import module.p0_gcp_iam_management.p0_aws_iam_write.iam_write {accountId}
 resource "p0_aws_iam_write" "iam_write" {
   id         = var.aws_account_id
   depends_on = [p0_aws_iam_write_staged.iam_write_staged]
   partition  = "aws"
   login = {
-    type = "idc"
+    type   = "idc"
     parent = var.aws_account_id
   }
 }

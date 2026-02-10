@@ -20,6 +20,7 @@ locals {
 # This SSM command document is executed by P0 to manage the sudoers file and grant / revoke sudo
 # access to a user. The document is created by the customer, P0 is not allowed to create documents
 # that it can execute because that is a privilege escalation path.
+# To import: terraform import "module.aws_p0_ssm_documents.aws_ssm_document.p0_manage_sudo_access" P0ProvisionUserAccess
 resource "aws_ssm_document" "p0_manage_sudo_access" {
   name            = "P0ProvisionUserAccess"
   document_format = "YAML"
@@ -31,6 +32,7 @@ resource "aws_ssm_document" "p0_manage_sudo_access" {
 
 # This SSM document retrieves SSH host keys from an EC2 instance. The document must be created by the customer as
 # P0 is not allowed to create documents that it can execute to guard against privilege escalation.
+# To import: terraform import "module.aws_p0_ssm_documents.aws_ssm_document.p0_get_ssh_host_keys" P0GetSshHostKeys
 resource "aws_ssm_document" "p0_get_ssh_host_keys" {
   name            = "P0GetSshHostKeys"
   document_format = "YAML"

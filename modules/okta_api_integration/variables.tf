@@ -6,6 +6,7 @@ variable "org_domain" {
   description = "This is the domain name of your Okta account, for example dev-123456.oktapreview.com."
 }
 
+
 variable "p0_org_id" {
   description = "This is the P0 organization ID"
 }

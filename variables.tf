@@ -22,8 +22,7 @@ variable "okta" {
 
 variable "p0" {
   type = object({
-    org_id                 = string
-    gcp_service_account_id = string
+    org_id = string
   })
 }
 
@@ -31,6 +30,7 @@ variable "aws" {
   type = object({
     saml_identity_provider_name = string
     role_count                  = number
+    group_key                   = string
   })
 }
 

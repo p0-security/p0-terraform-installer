@@ -41,6 +41,11 @@ data "aws_iam_policy_document" "p0_grants_role_trust_policy" {
   }
 }
 
+# To import:
+# for i in $(seq 0 19); do
+#   role_name="P0GrantsRole$i"
+#   terraform import "module.aws_p0_roles.aws_iam_role.p0_grants_roles[$i]" "$role_name"
+# done
 resource "aws_iam_role" "p0_grants_roles" {
   count              = var.role_count
   name               = format("P0GrantsRole%s", count.index)
@@ -50,6 +55,12 @@ resource "aws_iam_role" "p0_grants_roles" {
   tags = local.tags
 }
 
+# To import:
+# for i in $(seq 0 19); do
+#   role_name="P0GrantsRole$i"
+#   policy_name="P0PolicySharedSSH"
+#   terraform import "module.aws_p0_roles.aws_iam_role_policy.p0_policy_shared_ssh[$i]" "${role_name}:${policy_name}"
+# done
 resource "aws_iam_role_policy" "p0_policy_shared_ssh" {
   count = var.role_count
 
@@ -83,7 +94,7 @@ EOF
 
   # To prevent the P0GrantsRoles from being recreated every time Terraform 
   # apply is run, ignore the inline policy content.
-
+  
   # This is because the inline policy is updated by P0 when access request 
   # are granted (if the inline policy option is enabled).
   lifecycle {

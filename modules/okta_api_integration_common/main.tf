@@ -15,10 +15,8 @@ locals {
 # The administrative roles configuration below allows the following access type:
 # 1) Read Okta users and groups
 #   - Requires: custom role with "okta.users.read" and "okta.groups.read" permissions
-# 2) AWS resource-based access for Federated user provisioning
-#   - Requires: custom role with "okta.apps.manage" permission scoped to only the AWS Account Federation app
 
-# 1) Read Okta users and groups
+# Read Okta users and groups
 resource "okta_admin_role_custom" "p0_lister_role" {
   label       = "P0 Directory Lister"
   description = "Allows P0 Security to read all users and all groups"

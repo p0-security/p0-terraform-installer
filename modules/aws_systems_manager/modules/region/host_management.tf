@@ -30,6 +30,7 @@ locals {
   }
 }
 
+# To import: terraform import "module.aws_systems_manager.module.region_{regionAlias}.aws_ssm_service_setting.ssm_service_settings[\"{ssmServiceSettingKey}\"]" arn:aws:ssm:{region}:{account}:servicesetting{ssmServiceSettingKey}
 resource "aws_ssm_service_setting" "ssm_service_settings" {
   for_each = toset(
     keys(local.ssm_service_settings)

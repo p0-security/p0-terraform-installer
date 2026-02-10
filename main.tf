@@ -1,8 +1,8 @@
 terraform {
   backend "s3" {
-    bucket = "mike-d-tf-state"
-    key    = "p0-tf-install/terraform.tfstate"
-    region = "us-west-2"
+    bucket = "<enter bucket name here>"
+    key    = "<enter key name here>"
+    region = "<enter region here>"
   }
   required_providers {
     okta = {
@@ -94,7 +94,6 @@ module "okta_api_integration" {
 **********************************/
 module "aws_p0_install" {
   source                            = "./modules/aws_p0_install"
-  gcp_service_account_id            = var.p0.gcp_service_account_id
   identity_center_parent_account_id = local.identity_center_parent_account_id
 }
 
@@ -133,7 +132,7 @@ module "aws_p0_resource_access_us_west_2" {
 module "p0_aws_iam_management" {
   source              = "./modules/p0_aws_iam_management"
   aws_account_id      = data.aws_caller_identity.current.account_id
-  aws_group_key       = "Stack"
+  aws_group_key       = var.aws.group_key
   aws_is_sudo_enabled = true
 }
 

@@ -53,17 +53,6 @@ resource "okta_app_oauth_api_scope" "p0_api_integration_scopes" {
     # Required for Okta group membership access
     "okta.users.read",
     "okta.groups.manage",
-    # Required for AWS resource-based access for Federated user provisioning
-    "okta.apps.manage",
-    "okta.schemas.manage"
-  ]
-}
-
-resource "okta_resource_set" "p0_managed_resources" {
-  label       = "P0 Access Apps (${var.p0_org_id})"
-  description = "List of apps that P0 can grant users access to"
-  resources = [
-    "${local.org_url}/api/v1/users", # requires all users for the "okta.users.appAssignment.manage" permission
   ]
 }
 

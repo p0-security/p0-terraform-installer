@@ -7,6 +7,7 @@ terraform {
   }
 }
 
+# To import: terraform import "module.okta_native_login.okta_app_oauth.p0_login" {applicationId}
 resource "okta_app_oauth" "p0_login" {
   label                      = var.app_name
   type                       = "native"
