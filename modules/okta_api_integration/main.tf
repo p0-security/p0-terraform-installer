@@ -56,8 +56,16 @@ resource "okta_app_oauth_api_scope" "p0_api_integration_scopes" {
   ]
 }
 
+resource "okta_app_oauth_role_assignment" "p0_lister_role_assignment" {
+  type         = "CUSTOM"
+  client_id    = okta_app_oauth.p0_api_integration.client_id
+  role         = var.p0_lister_role_id
+  resource_set = var.p0_all_users_groups_id
+}
+
 resource "p0_okta_directory_listing" "p0_api_integration" {
-  client = okta_app_oauth.p0_api_integration.client_id
-  domain = p0_okta_directory_listing_staged.p0_api_integration.domain
-  jwk    = p0_okta_directory_listing_staged.p0_api_integration.jwk
+  client     = okta_app_oauth.p0_api_integration.client_id
+  domain     = p0_okta_directory_listing_staged.p0_api_integration.domain
+  jwk        = p0_okta_directory_listing_staged.p0_api_integration.jwk
+  depends_on = [okta_app_oauth_role_assignment.p0_lister_role_assignment]
 }
