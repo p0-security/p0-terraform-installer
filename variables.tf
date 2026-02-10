@@ -22,7 +22,8 @@ variable "okta" {
 
 variable "p0" {
   type = object({
-    org_id = string
+    org_id                 = string
+    gcp_service_account_id = string
   })
 }
 

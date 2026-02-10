@@ -94,6 +94,7 @@ module "okta_api_integration" {
 **********************************/
 module "aws_p0_install" {
   source                            = "./modules/aws_p0_install"
+  gcp_service_account_id            = var.p0.gcp_service_account_id
   identity_center_parent_account_id = local.identity_center_parent_account_id
 }
 
