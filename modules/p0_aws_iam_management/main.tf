@@ -9,7 +9,7 @@ terraform {
   }
 }
 
-# Stages the installation of the P0 GCP IAM Management Integration
+# Stages the installation of the P0 AWS IAM Management Integration
 resource "p0_aws_iam_write_staged" "iam_write_staged" {
   partition = "aws"
   id        = var.aws_account_id

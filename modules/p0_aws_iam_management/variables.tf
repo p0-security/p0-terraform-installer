@@ -3,11 +3,6 @@ variable "aws_account_id" {
   type        = string
 }
 
-variable "aws_identity_provider" {
-  description = "The name of the AWS Identity Provider used for login"
-  type        = string
-}
-
 variable "aws_group_key" {
   description = "The tag key used to group AWS instances. Access can be requested, in one request, to all instances with a shared tag value"
   type        = string

@@ -59,28 +59,12 @@ resource "okta_app_oauth_api_scope" "p0_api_integration_scopes" {
   ]
 }
 
-resource "okta_app_oauth_role_assignment" "p0_lister_role_assignment" {
-  type         = "CUSTOM"
-  client_id    = okta_app_oauth.p0_api_integration.client_id
-  role         = var.p0_lister_role_id
-  resource_set = var.p0_all_users_groups_id
-}
-
-# The following three resources are for the AWS Okta federation app
-
 resource "okta_resource_set" "p0_managed_resources" {
   label       = "P0 Access Apps (${var.p0_org_id})"
   description = "List of apps that P0 can grant users access to"
   resources = [
     "${local.org_url}/api/v1/users", # requires all users for the "okta.users.appAssignment.manage" permission
   ]
-}
-
-resource "okta_app_oauth_role_assignment" "p0_manager_role_assignment" {
-  type         = "CUSTOM"
-  client_id    = okta_app_oauth.p0_api_integration.client_id
-  role         = var.p0_manager_role_id
-  resource_set = okta_resource_set.p0_managed_resources.id
 }
 
 resource "p0_okta_directory_listing" "p0_api_integration" {

@@ -31,8 +31,7 @@ data "aws_iam_policy_document" "p0_grants_role_trust_policy" {
 
   statement {
     effect = "Allow"
-  
-  // Do we need to add the parent account here?
+
     principals {
       type        = "Federated"
       identifiers = ["arn:aws:iam::${local.account_id}:saml-provider/${var.saml_identity_provider_name}"]
@@ -84,7 +83,7 @@ EOF
 
   # To prevent the P0GrantsRoles from being recreated every time Terraform 
   # apply is run, ignore the inline policy content.
-  
+
   # This is because the inline policy is updated by P0 when access request 
   # are granted (if the inline policy option is enabled).
   lifecycle {

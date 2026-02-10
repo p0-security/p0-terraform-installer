@@ -12,7 +12,7 @@ locals {
 }
 
 # OAuth scopes alone are not sufficient to perform the administrative tasks P0 needs to perform.
-# The administrative roles configuration below allows the following two access types:
+# The administrative roles configuration below allows the following access type:
 # 1) Read Okta users and groups
 #   - Requires: custom role with "okta.users.read" and "okta.groups.read" permissions
 # 2) AWS resource-based access for Federated user provisioning

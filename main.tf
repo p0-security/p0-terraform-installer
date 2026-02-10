@@ -131,11 +131,10 @@ module "aws_p0_resource_access_us_west_2" {
   P0 AWS Management Integration
 ******************************************/
 module "p0_aws_iam_management" {
-  source                  = "./modules/p0_aws_iam_management"
-  aws_account_id          = data.aws_caller_identity.current.account_id
-  aws_identity_provider   = var.aws.saml_identity_provider_name
-  aws_group_key           = "Stack"
-  aws_is_sudo_enabled     = true
+  source              = "./modules/p0_aws_iam_management"
+  aws_account_id      = data.aws_caller_identity.current.account_id
+  aws_group_key       = "Stack"
+  aws_is_sudo_enabled = true
 }
 
 /**********************************
