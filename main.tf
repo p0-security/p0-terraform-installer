@@ -1,8 +1,8 @@
 terraform {
   backend "s3" {
-    bucket = "<enter bucket name here>"
-    key    = "<enter key name here>"
-    region = "<enter region here>"
+    bucket = "mike-d-tf-state"
+    key    = "p0-tf-install"
+    region = "us-west-2"
   }
   required_providers {
     okta = {
@@ -22,6 +22,13 @@ terraform {
 }
 
 # This Okta provider uses private key authentication to authenticate with the Okta API.
+#
+# Required scopes (okta.tfauth.scopes) are derived from the Okta resources in this repo:
+#   - okta_app_oauth (okta_native_login, okta_api_integration)  → okta.apps.manage, okta.apps.read
+#   - okta_app_oauth_api_scope (assign scopes to API integration) → okta.apps.manage (app grant/scope)
+#   - okta_admin_role_custom, okta_resource_set (okta_api_integration_common) → okta.roles.manage, okta.roles.read
+#   - okta_app_oauth_role_assignment (assign role to API integration app)   → okta.roles.manage, okta.roles.read
+# So the minimum set is: okta.apps.manage, okta.apps.read, okta.roles.manage, okta.roles.read
 provider "okta" {
   org_name       = var.okta.org_name
   base_url       = var.okta.base_url
@@ -103,7 +110,6 @@ module "aws_p0_roles" {
   source = "./modules/aws_p0_roles"
 
   saml_identity_provider_name = var.aws.saml_identity_provider_name
-  role_count                  = var.aws.role_count
 }
 
 /******************************************

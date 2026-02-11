@@ -4,12 +4,12 @@ Deploy P0 integrations into an existing Okta + AWS environment using Terraform.
 
 This module set is intended to bootstrap everything P0 needs to:
 
-- authenticate users via Okta
-- discover Okta groups
-- manage AWS IAM permission sets and policies
-- inventory AWS resources
-- enable SSH access to EC2 instances via AWS Systems Manager
-- define sample routing rules for fine‑grained access control in P0
+- Authenticate users via Okta
+- Discover Okta groups
+- Grant just-in-time access to AWS IAM permission sets and policies
+- Grant just-in-time access to AWS resources
+- Grant just-in-time SSH access to EC2 instances via AWS Systems Manager
+- Define sample routing rules for fine‑grained access control in P0
 
 ### Integrations provided
 
@@ -41,11 +41,13 @@ This module set is intended to bootstrap everything P0 needs to:
   - Deploys SSM documents used by P0 for:
     - provisioning SSH users and keys
     - retrieving SSH host keys.
+  - See [P0 SSH](https://docs.p0.dev/integrations/resource-integrations/ssh) for prerequisites, CLI usage, and configuring accounts.
 
 - **Sample routing rules**
   - Provides example routing rules that show how P0 can:
     - map Okta groups, AWS attributes, and P0 metadata
     - enforce fine‑grained, just‑in‑time access patterns.
+  - See [Just-in-time access](https://docs.p0.dev/orchestration/just-in-time-access) and [Integrations](https://docs.p0.dev/integrations/integrations) for more on access control.
 
 ### Prerequisites
 
@@ -55,8 +57,8 @@ This module set is intended to bootstrap everything P0 needs to:
 
 - **AWS**
   - An AWS account with:
-    - IAM Identity Center (SSO) configured (or the current account used as the Identity Center parent).
-    - Permission to create and manage:
+    - IAM Identity Center (SSO) configured either on the account itself or on another account in its organization.
+    - The user applying this terraform must have permission to create and manage:
       - IAM roles, policies, and SSM documents
       - Resource Explorer indexes and views.
   - Credentials exported via standard environment variables:
@@ -66,21 +68,26 @@ This module set is intended to bootstrap everything P0 needs to:
 
 - **Okta**
   - An Okta org with API access enabled.
-  - An Okta **API service app** (Client Credentials flow, private key JWT) that **Terraform** uses to create and manage Okta resources. This is the app whose credentials you put in `terraform.tfvars` and `OKTA_API_PRIVATE_KEY`, and it is **distinct** from the Okta apps that this Terraform code will create for P0 itself (the P0 login native app and the P0 Okta integration service app):
-    - Create the service app in the Okta Admin Console (e.g. **Applications → Create App Integration → API Services**). Add a public key and note the **client ID** and **private key ID**.
-    - Store the PEM‑encoded private key (starting with `-----BEGIN PRIVATE KEY-----`) in the `OKTA_API_PRIVATE_KEY` environment variable. You can export a PEM from the Okta UI or use the repo’s `jwk-to-pem.py` script if your key is in JWK form.
-    - In the Okta Admin Console, grant this app the following **OAuth 2.0 scopes** (required for the Terraform resources in this repo):
+  - An Okta **API service app** (Client Credentials flow, private key JWT) that **Terraform** uses to create and manage Okta resources. You may use an **existing** API service app if your Okta account already has one with the required scopes. If not you can create a new one. This app is **distinct** from the Okta apps that this Terraform code will create for P0 (the P0 login native app and the P0 Okta integration service app).
+    - **Required OAuth 2.0 scopes**:
       - `okta.roles.manage` – create custom admin roles and resource sets, and assign roles to apps
       - `okta.roles.read` – read roles and resource sets
       - `okta.apps.manage` – create and manage OAuth apps (the P0 login app and the P0 API integration app) and their API scopes
       - `okta.apps.read` – read app information
-    - The list of scopes in your Terraform provider config (`okta.tfauth.scopes` in `terraform.tfvars`) must include at least these four; it may list more (e.g. `terraform.tfvars.example` includes a broader set from earlier development). See [Okta OAuth 2.0 scopes](https://developer.okta.com/docs/api/oauth2/) and [Control Terraform access to Okta](https://developer.okta.com/docs/guides/terraform-design-access-security/main/).
+        For more information about these scopes, see [Okta OAuth 2.0 scopes](https://developer.okta.com/docs/api/oauth2/) and [Control Terraform access to Okta](https://developer.okta.com/docs/guides/terraform-design-access-security/main/).
+    - **If creating a new app:** In the Okta Admin Console go to **Applications → Create App Integration → API Services → Enter a name for the app**.
+    - **Regardless if you are using a new app of an existing one:** Add a public key and note the **client ID** and **private key ID**.
+      Store the PEM‑encoded private key (starting with `-----BEGIN PRIVATE KEY-----`) in the `OKTA_API_PRIVATE_KEY` environment variable. You can export a PEM from the Okta UI or use the repo’s `jwk-to-pem.py` script if your key is in JWK form.
+    - The list of scopes in your Terraform provider config (`okta.tfauth.scopes` in `terraform.tfvars`) must include at least these four (and must match what the app is granted in Okta).
 
 - **P0**
-  - A P0 organization configured in the P0 app.
+  - A P0 organization configured in the [P0 app](https://p0.app). See [P0 Onboarding](https://docs.p0.dev/p0-security-onboarding) for setup.
   - A **P0 API token** created in the P0 UI:
     - Exported as `P0_API_TOKEN` in the environment.
     - Used by the Terraform `p0` provider to register and manage P0 integrations.
+  - **Note that to login to P0 the Okta login app must first be configured**. So this entire repository cannot be applied at one time. There are two steps in the process.
+    - 1. Create an Okta Login app and coordinate with P0 to gain access to the P0 platform
+    - 2. Once you are in the P0 platform, generate an API key and complete the subsequent installations of the Okta group listing integration as well as all of the AWS related setup
 
 ### Required environment variables
 
@@ -103,6 +110,8 @@ The main configuration is provided via `terraform.tfvars` (not checked into git)
 
 At a high level you must configure:
 
+**Okta login app:** Provide your Okta organization URL and the P0 login app’s **Client ID** to P0 (e.g. in the [P0 app](https://p0.app) or to your P0 contact) so users can sign in with Okta. See [Directory integrations](https://docs.p0.dev/integrations/directory-integrations) and the [Okta integration](https://docs.p0.dev/integrations/directory-integrations/okta) for details. The Client ID is the `client_id` output of the `okta_native_login` module; you can add a root-level `output` that references `module.okta_native_login.client_id` and run `terraform output` to retrieve it. If you use Okta’s AWS Account Federation (Web SSO), configure this Client ID as the federation app’s **Allowed Web SSO Client**.
+
 - **Okta**
   - `okta.org_name` – your Okta org subdomain.
   - `okta.base_url` – Okta domain (for example `okta.com`).
@@ -111,14 +120,12 @@ At a high level you must configure:
   - `okta.api_integration_app.app_name` – label for the P0 Okta integration service app.
 
 - **P0**
-  - `p0.org_id` – the P0 organization identifier.
-  - `p0.gcp_service_account_id` – GCP service account ID P0 uses to access AWS (see example).
+  - `p0.org_id` – the identifier for your tenant in P0 (find it in [p0.app](https://p0.app) or in the P0 URL, e.g. `https://p0.app/o/your-org-id`).
 
 - **AWS**
-  - `identity_center_parent_account_id` – AWS account ID that hosts IAM Identity Center (org management or delegated admin account).
+  - `identity_center_parent_account_id` – AWS account ID that hosts IAM Identity Center. If you are using a delegated account, you must still provide the ID of the parent account here.
   - `aws.saml_identity_provider_name` – name of the existing SAML provider used for federation.
-  - `aws.role_count` – number of AWS roles to pre‑provision.
-  - `aws.group_key` – metadata key that P0 will use for routing (for example `environment`).
+  - `aws.group_key` – Optional [grouping tag](https://docs.p0.dev/integrations/resource-integrations/ssh) for SSH (e.g. use with `p0 request ssh group --name <value>`).
   - `regional_aws` – per‑region configuration including:
     - which VPCs are enabled (used for Systems Manager / SSH via SSM VPC endpoints)
     - which region is the Resource Explorer aggregator.
@@ -139,15 +146,3 @@ At a high level you must configure:
    - `terraform plan`
 6. **Apply** when ready:
    - `terraform apply`
-
-After a successful apply, your Okta and AWS environments will be wired up so that P0 can:
-
-- authenticate users via Okta
-- read groups for policy routing
-- manage AWS IAM integrations
-- inventory resources
-- enable SSH access through SSM
-- evaluate sample routing rules for fine‑grained access control.
-
-**Okta sign-in app:** Provide your Okta organization URL and the P0 login app’s **Client ID** to P0 (e.g. in the P0 app or to your P0 contact) so users can sign in with Okta. The Client ID is the `client_id` output of the `okta_native_login` module; you can add a root-level `output` that references `module.okta_native_login.client_id` and run `terraform output` to retrieve it. If you use Okta’s AWS Account Federation (Web SSO), configure this Client ID as the federation app’s **Allowed Web SSO Client**.
-

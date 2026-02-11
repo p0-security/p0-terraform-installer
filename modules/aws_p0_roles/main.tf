@@ -47,7 +47,7 @@ data "aws_iam_policy_document" "p0_grants_role_trust_policy" {
 #   terraform import "module.aws_p0_roles.aws_iam_role.p0_grants_roles[$i]" "$role_name"
 # done
 resource "aws_iam_role" "p0_grants_roles" {
-  count              = var.role_count
+  count              = 10
   name               = format("P0GrantsRole%s", count.index)
   path               = "/p0-grants/"
   assume_role_policy = data.aws_iam_policy_document.p0_grants_role_trust_policy.json
@@ -62,7 +62,7 @@ resource "aws_iam_role" "p0_grants_roles" {
 #   terraform import "module.aws_p0_roles.aws_iam_role_policy.p0_policy_shared_ssh[$i]" "${role_name}:${policy_name}"
 # done
 resource "aws_iam_role_policy" "p0_policy_shared_ssh" {
-  count = var.role_count
+  count = 10
 
   name = "P0PolicySharedSSH"
   role = aws_iam_role.p0_grants_roles[count.index].name
