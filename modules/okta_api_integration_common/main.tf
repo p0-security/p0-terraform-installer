@@ -18,7 +18,7 @@ locals {
 
 # Read Okta users and groups
 resource "okta_admin_role_custom" "p0_lister_role" {
-  label       = "Mike D 2 P0 Directory Lister"
+  label       = "P0 Directory Lister"
   description = "Allows P0 Security to read all users and all groups"
   permissions = [
     "okta.users.read",
@@ -31,7 +31,7 @@ output "p0_lister_role_id" {
 }
 
 resource "okta_resource_set" "p0_all_users_groups" {
-  label       = "Mike D 2 P0 All Users and Groups"
+  label       = "P0 All Users and Groups"
   description = "All users and all groups"
   resources = [
     "${local.org_url}/api/v1/users",
@@ -43,11 +43,8 @@ output "p0_all_users_groups_id" {
   value = okta_resource_set.p0_all_users_groups.id
 }
 
-# The following three resources are for the AWS Okta federation app
-
-# 2) AWS resource-based access for Federated user provisioning
 resource "okta_admin_role_custom" "p0_manager_role" {
-  label       = "Mike D 2 P0 App Access Manager"
+  label       = "P0 App Access Manager"
   description = "Allows P0 Security to manage user-to-app assignments and the apps themselves"
   permissions = [
     "okta.users.appAssignment.manage",

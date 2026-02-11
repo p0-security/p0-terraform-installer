@@ -35,7 +35,6 @@ aws = {
   group_key                   = "environment"
 }
 
-// do we want more regions here?
 regional_aws = {
   us-west-1 = {
     enabled_vpcs                    = ["vpc-0ea2738e353cfe759"]
