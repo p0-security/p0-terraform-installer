@@ -13,11 +13,11 @@ This module set is intended to bootstrap everything P0 needs to:
 
 ### Integrations provided
 
-- **Okta login**
+- **Okta login** (`modules/okta_login`)
   - Creates a native Okta OIDC application used for sign-in to the P0 web app (e.g. https://p0.app) and the P0 CLI.
   - Uses PKCE and device / token‑exchange flows, with no client secret (`omit_secret = true`).
 
-- **Okta group listing**
+- **Okta group listing** (`modules/okta_group_listing`)
   - Creates custom Okta admin roles and resource sets to allow P0 to:
     - **read all users** (`okta.users.read`)
     - **read all groups** (`okta.groups.read`)
@@ -110,14 +110,14 @@ The main configuration is provided via `terraform.tfvars` (not checked into git)
 
 At a high level you must configure:
 
-**Okta login app:** Provide your Okta organization URL and the P0 login app’s **Client ID** to P0 (e.g. in the [P0 app](https://p0.app) or to your P0 contact) so users can sign in with Okta. See [Directory integrations](https://docs.p0.dev/integrations/directory-integrations) and the [Okta integration](https://docs.p0.dev/integrations/directory-integrations/okta) for details. The Client ID is the `client_id` output of the `okta_native_login` module; you can add a root-level `output` that references `module.okta_native_login.client_id` and run `terraform output` to retrieve it. If you use Okta’s AWS Account Federation (Web SSO), configure this Client ID as the federation app’s **Allowed Web SSO Client**.
+**Okta login app:** Provide your Okta organization URL and the P0 login app’s **Client ID** to P0 (e.g. in the [P0 app](https://p0.app) or to your P0 contact) so users can sign in with Okta. See [Directory integrations](https://docs.p0.dev/integrations/directory-integrations) and the [Okta integration](https://docs.p0.dev/integrations/directory-integrations/okta) for details. The Client ID is the `login_app_client_id` output of the `okta_login` module; you can add a root-level `output` that references `module.okta_login.login_app_client_id` and run `terraform output` to retrieve it. If you use Okta’s AWS Account Federation (Web SSO), configure this Client ID as the federation app’s **Allowed Web SSO Client**.
 
-- **Okta**
+- **Okta** (two apps are created by this repo: a **login app** and a **group listing app**)
   - `okta.org_name` – your Okta org subdomain.
   - `okta.base_url` – Okta domain (for example `okta.com`).
-  - `okta.tfauth.client_id` / `okta.tfauth.private_key_id` / `okta.tfauth.scopes` – match the Okta API service app that Terraform uses to authenticate (the app described in the **Okta** prerequisites above), not the P0 integration app that this repo creates.
-  - `okta.native_app` – name and redirect URIs for the P0 login app (e.g. `app_redirect_uris = ["https://p0.app/oidc/auth/_redirect"]`).
-  - `okta.api_integration_app.app_name` – label for the P0 Okta integration service app.
+  - `okta.tfauth.client_id` / `okta.tfauth.private_key_id` / `okta.tfauth.scopes` – match the Okta API service app that Terraform uses to authenticate (the app described in the **Okta** prerequisites above), not the P0 apps that this repo creates.
+  - `okta.native_app` – name and redirect URIs for the **login app** (`modules/okta_login`), used for user sign-in to P0 (e.g. `app_redirect_uris = ["https://p0.app/oidc/auth/_redirect"]`).
+  - `okta.api_integration_app.app_name` – label for the **group listing app** (`modules/okta_group_listing`), the service app P0 uses to list users and groups.
 
 - **P0**
   - `p0.org_id` – the identifier for your tenant in P0 (find it in [p0.app](https://p0.app) or in the P0 URL, e.g. `https://p0.app/o/your-org-id`).
@@ -130,9 +130,8 @@ At a high level you must configure:
     - which VPCs are enabled (used for Systems Manager / SSH via SSM VPC endpoints)
     - which region is the Resource Explorer aggregator.
     - **Note:** This repo currently hard‑codes support for the `us-west-1` and `us-west-2` regions. To change regions you must:
-      - add or update aliased `aws` providers in `main.tf` (for example `provider "aws" { alias = "eu_west_1" region = "eu-west-1" }`)
-      - add corresponding `aws_p0_resource_access_*` and `aws_p0_ssm_documents_*` module blocks that use those provider aliases
-      - update the `aws_systems_manager` module’s `providers` map and add matching `region_*` submodules under `modules/aws_systems_manager/modules/region`.
+      - add or update aliased `aws` providers in `main.tf` (e.g. `provider "aws" { alias = "eu_west_1" region = "eu-west-1" }`)
+      - update the `aws_resource_inventory` and `aws_ssh` module calls in `main.tf` to pass the new providers and extend `regional_aws` and each module’s regional configuration (e.g. `modules/aws_resource_inventory` and `modules/aws_ssh/systems_manager`).
 
 ### Usage
 

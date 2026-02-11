@@ -20,7 +20,7 @@ okta = {
 }
 
 p0 = {
-  org_id                 = "<your-p0-org-id>"
+  org_id = "<your-p0-org-id>"
 }
 
 # Account ID where IAM Identity Center lives (org management or delegated admin).

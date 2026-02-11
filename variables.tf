@@ -23,7 +23,7 @@ variable "okta" {
 variable "p0" {
   type = object({
     org_id                 = string
-    gcp_service_account_id = string
+    gcp_service_account_id = optional(string, "106141354930392279110")
   })
 }
 
@@ -31,6 +31,7 @@ variable "aws" {
   type = object({
     saml_identity_provider_name = string
     group_key                   = string
+    role_count                  = optional(number, 10)
   })
 }
 

@@ -1,8 +1,8 @@
 terraform {
   backend "s3" {
-    bucket = "mike-d-tf-state"
-    key    = "p0-tf-install"
-    region = "us-west-2"
+    bucket = "<enter S3 bucket name here>"
+    key    = "<enter S3 key name here>"
+    region = "<enter region here>"
   }
   required_providers {
     okta = {
@@ -71,120 +71,81 @@ locals {
 }
 
 /**********************************
-  Okta Applications
+  Okta login (native app for user auth)
 **********************************/
-module "okta_native_login" {
-  source              = "./modules/okta_native_login"
-  app_name            = var.okta.native_app.app_name
-  app_redirect_uris   = var.okta.native_app.app_redirect_uris
-  implicit_assignment = true
-}
+module "okta_login" {
+  source = "./modules/okta_login"
 
-module "okta_api_integration_common" {
-  source     = "./modules/okta_api_integration_common"
   org_domain = local.okta_org_domain
-}
-
-module "okta_api_integration" {
-  source                 = "./modules/okta_api_integration"
-  org_domain             = local.okta_org_domain
-  app_name               = var.okta.api_integration_app.app_name
-  p0_org_id              = var.p0.org_id
-  p0_lister_role_id      = module.okta_api_integration_common.p0_lister_role_id
-  p0_all_users_groups_id = module.okta_api_integration_common.p0_all_users_groups_id
+  native_app = {
+    app_name            = var.okta.native_app.app_name
+    app_redirect_uris   = var.okta.native_app.app_redirect_uris
+    implicit_assignment = true
+  }
 }
 
 /**********************************
-  AWS policy and roles for P0
+  Okta group listing (API integration app + P0 directory)
 **********************************/
-module "aws_p0_install" {
-  source                            = "./modules/aws_p0_install"
+module "okta_group_listing" {
+  source = "./modules/okta_group_listing"
+
+  org_domain               = local.okta_org_domain
+  api_integration_app_name = var.okta.api_integration_app.app_name
+}
+
+/**********************************
+  AWS IAM management (P0 roles + P0 IAM integration)
+**********************************/
+module "aws_iam_management" {
+  source = "./modules/aws_iam_management"
+
   gcp_service_account_id            = var.p0.gcp_service_account_id
   identity_center_parent_account_id = var.identity_center_parent_account_id
+  saml_identity_provider_name       = var.aws.saml_identity_provider_name
+  role_count                        = var.aws.role_count
+}
+
+/******************************************
+  AWS resource inventory (Resource Explorer + P0 inventory)
+******************************************/
+module "aws_resource_inventory" {
+  source = "./modules/aws_resource_inventory"
+
+  aws_account_id = data.aws_caller_identity.current.account_id
+  tags           = local.tags
+  regional_aws = {
+    "us-west-1" = { is_resource_explorer_aggregator = var.regional_aws["us-west-1"].is_resource_explorer_aggregator }
+    "us-west-2" = { is_resource_explorer_aggregator = var.regional_aws["us-west-2"].is_resource_explorer_aggregator }
+  }
+
+  providers = {
+    aws           = aws
+    aws.us_west_1 = aws.us_west_1
+    aws.us_west_2 = aws.us_west_2
+  }
+
+  depends_on = [module.aws_iam_management]
 }
 
 /**********************************
-  AWS roles for P0 access requests
+  AWS SSH (Systems Manager + SSM documents + P0 SSH)
 **********************************/
-module "aws_p0_roles" {
-  source = "./modules/aws_p0_roles"
+module "aws_ssh" {
+  source = "./modules/aws_ssh"
 
-  saml_identity_provider_name = var.aws.saml_identity_provider_name
-}
-
-/******************************************
-  AWS resources for resource-based access
-******************************************/
-module "aws_p0_resource_access_us_west_1" {
-  source = "./modules/aws_p0_resource_access"
-  providers = {
-    aws = aws.us_west_1
-  }
-  is_resource_explorer_aggregator = var.regional_aws["us-west-1"].is_resource_explorer_aggregator
-}
-
-module "aws_p0_resource_access_us_west_2" {
-  source = "./modules/aws_p0_resource_access"
-  providers = {
-    aws = aws.us_west_2
-  }
-  is_resource_explorer_aggregator = var.regional_aws["us-west-2"].is_resource_explorer_aggregator
-}
-
-/******************************************
-  P0 AWS Management Integration
-******************************************/
-module "p0_aws_iam_management" {
-  source              = "./modules/p0_aws_iam_management"
+  regional_aws        = var.regional_aws
   aws_account_id      = data.aws_caller_identity.current.account_id
   aws_group_key       = var.aws.group_key
   aws_is_sudo_enabled = true
-}
 
-/******************************************
-  P0 AWS Resource Inventory (Resource Explorer + lister)
-******************************************/
-module "p0_aws_resource" {
-  source         = "./modules/p0_aws_resource"
-  aws_account_id = data.aws_caller_identity.current.account_id
-  tags           = local.tags
-
-  providers = {
-    aws = aws
-  }
-
-  depends_on = [
-    module.aws_p0_resource_access_us_west_1,
-    module.aws_p0_resource_access_us_west_2,
-    module.p0_aws_iam_management,
-  ]
-}
-
-/**********************************
-  AWS resources for SSH
-**********************************/
-
-module "aws_systems_manager" {
   providers = {
     aws.default   = aws
     aws.us_west_1 = aws.us_west_1
     aws.us_west_2 = aws.us_west_2
   }
-  source       = "./modules/aws_systems_manager"
-  regional_aws = var.regional_aws
-}
 
-module "aws_p0_ssm_documents_us_west_1" {
-  providers = {
-    aws = aws.us_west_1
-  }
-  source = "./modules/aws_p0_ssm_documents"
-}
-module "aws_p0_ssm_documents_us_west_2" {
-  providers = {
-    aws = aws.us_west_2
-  }
-  source = "./modules/aws_p0_ssm_documents"
+  depends_on = [module.aws_iam_management]
 }
 
 /**********************************
