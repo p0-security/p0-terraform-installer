@@ -14,7 +14,7 @@ This module set is intended to bootstrap everything P0 needs to:
 ### Integrations provided
 
 - **Okta login**
-  - Creates a native Okta OIDC application used by the P0 CLI for user login.
+  - Creates a native Okta OIDC application used for sign-in to the P0 web app (e.g. https://p0.app) and the P0 CLI.
   - Uses PKCE and device / token‑exchange flows, with no client secret (`omit_secret = true`).
 
 - **Okta group listing**
@@ -66,7 +66,7 @@ This module set is intended to bootstrap everything P0 needs to:
 
 - **Okta**
   - An Okta org with API access enabled.
-  - An Okta **API service app** (Client Credentials flow, private key JWT) that **Terraform** uses to create and manage Okta resources. This is the app whose credentials you put in `terraform.tfvars` and `OKTA_API_PRIVATE_KEY`:
+  - An Okta **API service app** (Client Credentials flow, private key JWT) that **Terraform** uses to create and manage Okta resources. This is the app whose credentials you put in `terraform.tfvars` and `OKTA_API_PRIVATE_KEY`, and it is **distinct** from the Okta apps that this Terraform code will create for P0 itself (the P0 login native app and the P0 Okta integration service app):
     - Create the service app in the Okta Admin Console (e.g. **Applications → Create App Integration → API Services**). Add a public key and note the **client ID** and **private key ID**.
     - Store the PEM‑encoded private key (starting with `-----BEGIN PRIVATE KEY-----`) in the `OKTA_API_PRIVATE_KEY` environment variable. You can export a PEM from the Okta UI or use the repo’s `jwk-to-pem.py` script if your key is in JWK form.
     - In the Okta Admin Console, grant this app the following **OAuth 2.0 scopes** (required for the Terraform resources in this repo):
@@ -106,8 +106,8 @@ At a high level you must configure:
 - **Okta**
   - `okta.org_name` – your Okta org subdomain.
   - `okta.base_url` – Okta domain (for example `okta.com`).
-  - `okta.tfauth.client_id` / `okta.tfauth.private_key_id` / `okta.tfauth.scopes` – match your Okta API integration app.
-  - `okta.native_app` – name and redirect URIs for the P0 login app.
+  - `okta.tfauth.client_id` / `okta.tfauth.private_key_id` / `okta.tfauth.scopes` – match the Okta API service app that Terraform uses to authenticate (the app described in the **Okta** prerequisites above), not the P0 integration app that this repo creates.
+  - `okta.native_app` – name and redirect URIs for the P0 login app (e.g. `app_redirect_uris = ["https://p0.app/oidc/auth/_redirect"]`).
   - `okta.api_integration_app.app_name` – label for the P0 Okta integration service app.
 
 - **P0**
@@ -120,8 +120,12 @@ At a high level you must configure:
   - `aws.role_count` – number of AWS roles to pre‑provision.
   - `aws.group_key` – metadata key that P0 will use for routing (for example `environment`).
   - `regional_aws` – per‑region configuration including:
-    - which VPCs are enabled
+    - which VPCs are enabled (used for Systems Manager / SSH via SSM VPC endpoints)
     - which region is the Resource Explorer aggregator.
+    - **Note:** This repo currently hard‑codes support for the `us-west-1` and `us-west-2` regions. To change regions you must:
+      - add or update aliased `aws` providers in `main.tf` (for example `provider "aws" { alias = "eu_west_1" region = "eu-west-1" }`)
+      - add corresponding `aws_p0_resource_access_*` and `aws_p0_ssm_documents_*` module blocks that use those provider aliases
+      - update the `aws_systems_manager` module’s `providers` map and add matching `region_*` submodules under `modules/aws_systems_manager/modules/region`.
 
 ### Usage
 
@@ -144,4 +148,6 @@ After a successful apply, your Okta and AWS environments will be wired up so tha
 - inventory resources
 - enable SSH access through SSM
 - evaluate sample routing rules for fine‑grained access control.
+
+**Okta sign-in app:** Provide your Okta organization URL and the P0 login app’s **Client ID** to P0 (e.g. in the P0 app or to your P0 contact) so users can sign in with Okta. The Client ID is the `client_id` output of the `okta_native_login` module; you can add a root-level `output` that references `module.okta_native_login.client_id` and run `terraform output` to retrieve it. If you use Okta’s AWS Account Federation (Web SSO), configure this Client ID as the federation app’s **Allowed Web SSO Client**.
 
