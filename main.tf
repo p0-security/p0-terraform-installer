@@ -137,6 +137,25 @@ module "p0_aws_iam_management" {
   aws_is_sudo_enabled = true
 }
 
+/******************************************
+  P0 AWS Resource Inventory (Resource Explorer + lister)
+******************************************/
+module "p0_aws_resource" {
+  source         = "./modules/p0_aws_resource"
+  aws_account_id = data.aws_caller_identity.current.account_id
+  tags           = local.tags
+
+  providers = {
+    aws = aws
+  }
+
+  depends_on = [
+    module.aws_p0_resource_access_us_west_1,
+    module.aws_p0_resource_access_us_west_2,
+    module.p0_aws_iam_management,
+  ]
+}
+
 /**********************************
   AWS resources for SSH
 **********************************/
