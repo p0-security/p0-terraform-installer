@@ -19,6 +19,10 @@ locals {
 resource "aws_resourceexplorer2_index" "resource_index" {
   type = var.is_resource_explorer_aggregator ? "AGGREGATOR" : "LOCAL"
   tags = local.tags
+
+  lifecycle {
+    ignore_changes = [type]
+  }
 }
 
 # To import: terraform import "module.aws_p0_resource_access.aws_resourceexplorer2_index.example" arn:aws:resource-explorer-2:{region}:{accountId}:view/exampleview/e0914f6c-6c27-4b47-b5d4-6b28

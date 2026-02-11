@@ -1,9 +1,9 @@
 data "aws_caller_identity" "current" {}
 
 locals {
-  role_name        = "P0RoleIamManager"
-  policy_name      = "P0RoleIamManagerPolicy"
-  account_id       = data.aws_caller_identity.current.account_id
+  role_name         = "P0RoleIamManager"
+  policy_name       = "P0RoleIamManagerPolicy"
+  account_id        = data.aws_caller_identity.current.account_id
   parent_account_id = var.identity_center_parent_account_id
   tags = {
     managed-by = "terraform"

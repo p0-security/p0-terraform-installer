@@ -1,0 +1,19 @@
+# Use local p0 provider for development.
+#
+# 1. Build the provider with the name Terraform expects:
+#      make build-local-provider
+#    (or in ../terraform-provider-p0: go build -o terraform-provider-p0 .)
+#
+# 2. Enable the override and re-init (required after enabling):
+#      export TF_CLI_CONFIG_FILE="$(pwd)/terraform.rc"
+#      rm -rf .terraform .terraform.lock.hcl && terraform init
+#
+# 3. Run terraform plan/apply as usual.
+#
+# To stop using the local provider: unset TF_CLI_CONFIG_FILE && terraform init -upgrade
+provider_installation {
+  dev_overrides {
+    "p0-security/p0" = "../terraform-provider-p0"
+  }
+  direct {}
+}
