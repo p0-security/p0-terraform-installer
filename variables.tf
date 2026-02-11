@@ -14,11 +14,6 @@ variable "okta" {
       app_name          = string
       app_redirect_uris = list(string)
     })
-    federation_app = object({
-      app_name       = string
-      enduser_note   = string
-      aws_account_id = string
-    })
     api_integration_app = object({
       app_name = string
     })
@@ -27,8 +22,7 @@ variable "okta" {
 
 variable "p0" {
   type = object({
-    org_id = string
-    project_id = string
+    org_id                 = string
     gcp_service_account_id = string
   })
 }
@@ -37,7 +31,15 @@ variable "aws" {
   type = object({
     saml_identity_provider_name = string
     role_count                  = number
+    group_key                   = string
   })
+}
+
+# Account ID where the IAM Identity Center instance lives (e.g. org management account or delegated admin). If null, current account is used.
+variable "identity_center_parent_account_id" {
+  type        = string
+  default     = null
+  description = "Identity Center parent account ID; set in tfvars for org/delegated setups, leave unset for current account."
 }
 
 # A map of region name to variables for that region
@@ -46,30 +48,4 @@ variable "regional_aws" {
     enabled_vpcs                    = set(string)
     is_resource_explorer_aggregator = bool
   }))
-}
-
-variable "gcp" {
-  type = object({
-    organization_id  = string
-    project_id       = string
-    location         = string
-  })
-}
-
-variable "azure" {
-  type = object({
-    tenant_id              = string
-    management_group_id    = string
-    subscription_id        = string
-    azure_application_name = string
-    ssh_only               = bool
-    region                 = string
-  })
-}
-
-
-# Pass this as an environment variable to the Terraform process
-variable "HEC_TOKEN_CLEARTEXT" {
-  type      = string
-  sensitive = true
 }

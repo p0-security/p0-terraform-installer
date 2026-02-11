@@ -19,7 +19,6 @@ resource "p0_okta_directory_listing_staged" "p0_api_integration" {
   domain = var.org_domain
 }
 
-# To import: terraform import "module.okta_api_integration.okta_app_oauth.p0_api_integration" {applicationId}
 resource "okta_app_oauth" "p0_api_integration" {
   label                      = var.app_name
   type                       = "service"
@@ -47,7 +46,6 @@ output "client_id" {
 
 
 # The scopes provided to the app are limited by the administrative roles assigned to the app
-# To import: terraform import "module.okta_api_integration.okta_app_oauth_api_scope.p0_api_integration_scopes" {applicationId}
 resource "okta_app_oauth_api_scope" "p0_api_integration_scopes" {
   app_id = okta_app_oauth.p0_api_integration.id
   issuer = local.org_url # Assumes that the application uses the default org domain
@@ -55,13 +53,9 @@ resource "okta_app_oauth_api_scope" "p0_api_integration_scopes" {
     # Required for Okta group membership access
     "okta.users.read",
     "okta.groups.manage",
-    # Required for AWS resource-based access for Federated user provisioning
-    "okta.apps.manage",
-    "okta.schemas.manage"
   ]
 }
 
-# To import: terraform import "okta_app_oauth_role_assignment.p0_lister_role_assignment" {clientId}/{roleAssignmentId}
 resource "okta_app_oauth_role_assignment" "p0_lister_role_assignment" {
   type         = "CUSTOM"
   client_id    = okta_app_oauth.p0_api_integration.client_id
@@ -69,28 +63,9 @@ resource "okta_app_oauth_role_assignment" "p0_lister_role_assignment" {
   resource_set = var.p0_all_users_groups_id
 }
 
-# The following three resources are for the AWS Okta federation app
-
-# To import: terraform import "module.okta_api_integration.okta_resource_set.p0_managed_resources" {resourceSetId}
-resource "okta_resource_set" "p0_managed_resources" {
-  label       = "P0 Access Apps (${var.p0_org_id})"
-  description = "List of apps that P0 can grant users access to"
-  resources = [
-    "${local.org_url}/api/v1/users", # requires all users for the "okta.users.appAssignment.manage" permission
-    "${local.org_url}/api/v1/apps/${var.aws_federation_app_id}",
-  ]
-}
-
-# To import: terraform import "module.okta_api_integration.okta_app_oauth_role_assignment.p0_manager_role_assignment" {clientId}/{roleAssignmentId}
-resource "okta_app_oauth_role_assignment" "p0_manager_role_assignment" {
-  type         = "CUSTOM"
-  client_id    = okta_app_oauth.p0_api_integration.client_id
-  role         = var.p0_manager_role_id
-  resource_set = okta_resource_set.p0_managed_resources.id
-}
-
 resource "p0_okta_directory_listing" "p0_api_integration" {
-  client = okta_app_oauth.p0_api_integration.client_id
-  domain = p0_okta_directory_listing_staged.p0_api_integration.domain
-  jwk    = p0_okta_directory_listing_staged.p0_api_integration.jwk
+  client     = okta_app_oauth.p0_api_integration.client_id
+  domain     = p0_okta_directory_listing_staged.p0_api_integration.domain
+  jwk        = p0_okta_directory_listing_staged.p0_api_integration.jwk
+  depends_on = [okta_app_oauth_role_assignment.p0_lister_role_assignment]
 }
