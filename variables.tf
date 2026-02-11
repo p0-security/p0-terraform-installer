@@ -35,11 +35,10 @@ variable "aws" {
   })
 }
 
-# Account ID where the IAM Identity Center instance lives (e.g. org management account or delegated admin). If null, current account is used.
+# Account ID where the IAM Identity Center instance lives (org management account or delegated admin).
 variable "identity_center_parent_account_id" {
   type        = string
-  default     = null
-  description = "Identity Center parent account ID; set in tfvars for org/delegated setups, leave unset for current account."
+  description = "Identity Center parent account ID (org management or delegated admin account)."
 }
 
 # A map of region name to variables for that region

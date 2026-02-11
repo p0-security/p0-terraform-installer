@@ -22,7 +22,7 @@ p0 = {
   org_id = "<your-p0-org-id>"
 }
 
-# Optional: account ID where IAM Identity Center lives (org management or delegated admin). Leave commented to use current account.
+# Account ID where IAM Identity Center lives (org management or delegated admin).
 identity_center_parent_account_id = "<your-identity-center-parent-account-id>"
 
 // Note: After changing the role count, the roles must be synced into Okta using the "Refresh Application Data" button.

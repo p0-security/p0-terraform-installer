@@ -42,17 +42,3 @@ resource "okta_resource_set" "p0_all_users_groups" {
 output "p0_all_users_groups_id" {
   value = okta_resource_set.p0_all_users_groups.id
 }
-
-resource "okta_admin_role_custom" "p0_manager_role" {
-  label       = "P0 App Access Manager"
-  description = "Allows P0 Security to manage user-to-app assignments and the apps themselves"
-  permissions = [
-    "okta.users.appAssignment.manage",
-    "okta.apps.manage"
-  ]
-}
-
-output "p0_manager_role_id" {
-  value = okta_admin_role_custom.p0_manager_role.id
-}
-

@@ -60,8 +60,7 @@ locals {
   tags = {
     managed-by = "terraform"
   }
-  okta_org_domain                   = "${var.okta.org_name}.${var.okta.base_url}"
-  identity_center_parent_account_id = coalesce(var.identity_center_parent_account_id, data.aws_caller_identity.current.account_id)
+  okta_org_domain = "${var.okta.org_name}.${var.okta.base_url}"
 }
 
 /**********************************
@@ -86,7 +85,6 @@ module "okta_api_integration" {
   p0_org_id              = var.p0.org_id
   p0_lister_role_id      = module.okta_api_integration_common.p0_lister_role_id
   p0_all_users_groups_id = module.okta_api_integration_common.p0_all_users_groups_id
-  p0_manager_role_id     = module.okta_api_integration_common.p0_manager_role_id
 }
 
 /**********************************
@@ -95,7 +93,7 @@ module "okta_api_integration" {
 module "aws_p0_install" {
   source                            = "./modules/aws_p0_install"
   gcp_service_account_id            = var.p0.gcp_service_account_id
-  identity_center_parent_account_id = local.identity_center_parent_account_id
+  identity_center_parent_account_id = var.identity_center_parent_account_id
 }
 
 /**********************************

@@ -18,7 +18,3 @@ variable "p0_lister_role_id" {
 variable "p0_all_users_groups_id" {
   description = "This is the id of the 'P0 All Users and Groups' resource set"
 }
-
-variable "p0_manager_role_id" {
-  description = "This is the id of the 'P0 App Access Manager' role"
-}
