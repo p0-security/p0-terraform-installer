@@ -29,8 +29,6 @@ variable "kubernetes" {
       cert_authority  = string
       region          = string
     })
-  
-    org = string
   })
 }
 
