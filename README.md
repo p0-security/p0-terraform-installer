@@ -41,19 +41,19 @@ This module set is intended to bootstrap everything P0 needs to:
   - Deploys SSM documents used by P0 for:
     - provisioning SSH users and keys
     - retrieving SSH host keys.
-  - See [P0 SSH](https://docs.p0.dev/integrations/resource-integrations/ssh) for prerequisites, CLI usage, and configuring accounts.
+  - See <a href="https://docs.p0.dev/integrations/resource-integrations/ssh" target="_blank" rel="noopener noreferrer">P0 SSH</a> for prerequisites, CLI usage, and configuring accounts.
 
 - **Sample routing rules**
   - Provides example routing rules that show how P0 can:
     - map Okta groups, AWS attributes, and P0 metadata
     - enforce fine‑grained, just‑in‑time access patterns.
-  - See [Just-in-time access](https://docs.p0.dev/orchestration/just-in-time-access) and [Integrations](https://docs.p0.dev/integrations/integrations) for more on access control.
+  - See <a href="https://docs.p0.dev/orchestration/just-in-time-access" target="_blank" rel="noopener noreferrer">Just-in-time access</a> and <a href="https://docs.p0.dev/integrations/integrations" target="_blank" rel="noopener noreferrer">Integrations</a> for more on access control.
 
 ### Prerequisites
 
 - **Terraform**
   - **Terraform CLI** `1.8.0` (this repo pins `required_version = "= 1.8.0"`).
-  - Recommended: [`tfenv`](https://github.com/tfutils/tfenv) to manage Terraform versions.
+  - Recommended: <a href="https://github.com/tfutils/tfenv" target="_blank" rel="noopener noreferrer"><code>tfenv</code></a> to manage Terraform versions.
 
 - **AWS**
   - An AWS account with:
@@ -76,14 +76,14 @@ This module set is intended to bootstrap everything P0 needs to:
       - `okta.apps.read` – read app information
       - `okta.appGrants.manage` – grant scope consent to the API integration app (required for `okta_app_oauth_api_scope`); without this you may see "The access token provided does not contain the required scopes" when applying the okta_group_listing module
       - `okta.policies.read` and `okta.policies.manage` – the Okta provider reads/sets the default authentication (access) policy when managing OAuth apps; without these you may see “The access token provided does not contain the required scopes” when applying.
-        For more information about these scopes, see [Okta OAuth 2.0 scopes](https://developer.okta.com/docs/api/oauth2/) and [Control Terraform access to Okta](https://developer.okta.com/docs/guides/terraform-design-access-security/main/).
+        For more information about these scopes, see <a href="https://developer.okta.com/docs/api/oauth2/" target="_blank" rel="noopener noreferrer">Okta OAuth 2.0 scopes</a> and <a href="https://developer.okta.com/docs/guides/terraform-design-access-security/main/" target="_blank" rel="noopener noreferrer">Control Terraform access to Okta</a>.
     - **If creating a new app:** In the Okta Admin Console go to **Applications → Create App Integration → API Services → Enter a name for the app**.
     - **Regardless if you are using a new app of an existing one:** Add a public key and note the **client ID** and **private key ID**.
       Store the PEM‑encoded private key (starting with `-----BEGIN PRIVATE KEY-----`) in the `OKTA_API_PRIVATE_KEY` environment variable. You can export a PEM from the Okta UI or use the repo’s `jwk-to-pem.py` script if your key is in JWK form.
     - The list of scopes in your Terraform provider config (`okta.tfauth.scopes` in `terraform.tfvars`) must include at least the seven scopes above (and must match what the app is granted in Okta).
 
 - **P0**
-  - A P0 organization configured in the [P0 app](https://p0.app). See [P0 Onboarding](https://docs.p0.dev/p0-security-onboarding) for setup.
+  - A P0 organization configured in the <a href="https://p0.app" target="_blank" rel="noopener noreferrer">P0 app</a>. See <a href="https://docs.p0.dev/p0-security-onboarding" target="_blank" rel="noopener noreferrer">P0 Onboarding</a> for setup.
   - A **P0 API token** created in the P0 UI:
     - Exported as `P0_API_TOKEN` in the environment.
     - Used by the Terraform `p0` provider to register and manage P0 integrations.
@@ -112,7 +112,7 @@ The main configuration is provided via `terraform.tfvars` (not checked into git)
 
 At a high level you must configure:
 
-**Okta login app:** Provide your Okta organization URL and the P0 login app’s **Client ID** to P0 (e.g. in the [P0 app](https://p0.app) or to your P0 contact) so users can sign in with Okta. See [Directory integrations](https://docs.p0.dev/integrations/directory-integrations) and the [Okta integration](https://docs.p0.dev/integrations/directory-integrations/okta) for details. The Client ID is the `login_app_client_id` output of the `okta_login` module; you can add a root-level `output` that references `module.okta_login.login_app_client_id` and run `terraform output` to retrieve it. If you use Okta’s AWS Account Federation (Web SSO), configure this Client ID as the federation app’s **Allowed Web SSO Client**.
+**Okta login app:** Provide your Okta organization URL and the P0 login app’s **Client ID** to P0 (e.g. in the <a href="https://p0.app" target="_blank" rel="noopener noreferrer">P0 app</a> or to your P0 contact) so users can sign in with Okta. See <a href="https://docs.p0.dev/integrations/directory-integrations" target="_blank" rel="noopener noreferrer">Directory integrations</a> and the <a href="https://docs.p0.dev/integrations/directory-integrations/okta" target="_blank" rel="noopener noreferrer">Okta integration</a> for details. The Client ID is the `login_app_client_id` output of the `okta_login` module; you can add a root-level `output` that references `module.okta_login.login_app_client_id` and run `terraform output` to retrieve it. If you use Okta’s AWS Account Federation (Web SSO), configure this Client ID as the federation app’s **Allowed Web SSO Client**.
 
 - **Okta** (two apps are created by this repo: a **login app** and a **group listing app**)
   - `okta.org_name` – your Okta org subdomain.
@@ -122,12 +122,12 @@ At a high level you must configure:
   - `okta.api_integration_app.app_name` – label for the **group listing app** (`modules/okta_group_listing`), the service app P0 uses to list users and groups.
 
 - **P0**
-  - `p0.org_id` – the identifier for your tenant in P0 (find it in [p0.app](https://p0.app) or in the P0 URL, e.g. `https://p0.app/o/your-org-id`).
+  - `p0.org_id` – the identifier for your tenant in P0 (find it in <a href="https://p0.app" target="_blank" rel="noopener noreferrer">p0.app</a> or in the P0 URL, e.g. `https://p0.app/o/your-org-id`).
 
 - **AWS**
   - `identity_center_parent_account_id` – AWS account ID that hosts IAM Identity Center. If you are using a delegated account, you must still provide the ID of the parent account here.
-  - `aws.group_key` – Optional [grouping tag](https://docs.p0.dev/integrations/resource-integrations/ssh) for SSH (e.g. use with `p0 request ssh group --name <value>`).
-  - `regional_aws` – per‑region configuration including:
+  - `aws.group_key` – Optional <a href="https://docs.p0.dev/integrations/resource-integrations/ssh" target="_blank" rel="noopener noreferrer">grouping tag</a> for SSH (e.g. use with `p0 request ssh group --name <value>`).
+C  - `regional_aws` – per‑region configuration including:
     - which VPCs are enabled (used for Systems Manager / SSH via SSM VPC endpoints)
     - which region is the Resource Explorer aggregator.
     - **Note:** This repo currently hard‑codes support for the `us-west-1` and `us-west-2` regions. To change regions you must:
