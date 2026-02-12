@@ -52,6 +52,7 @@ data "aws_subnets" "selected_vpc_subnets" {
   }
 }
 
+# Import: terraform import -provider=aws.<region_alias> 'module.aws_ssh.module.systems_manager.module.region_us_west_1.module.aws_vpc_endpoint["<vpc-id>"].aws_vpc_endpoint.ssm_vpc_endpoints["ssm"]' vpce-<id> (one per endpoint key: s3, ssm, ssmmessages, ec2, ec2messages, logs, kms, sts, monitoring)
 resource "aws_vpc_endpoint" "ssm_vpc_endpoints" {
   for_each = local.endpoints
 

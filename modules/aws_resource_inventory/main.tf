@@ -5,6 +5,7 @@ locals {
 }
 
 # --- AWS: Resource Explorer index and view (us-west-1) ---
+# Import: terraform import -provider=aws.us_west_1 'module.aws_resource_inventory.aws_resourceexplorer2_index.us_west_1' <region> (e.g. us-west-1)
 resource "aws_resourceexplorer2_index" "us_west_1" {
   provider = aws.us_west_1
   type     = var.regional_aws["us-west-1"].is_resource_explorer_aggregator ? "AGGREGATOR" : "LOCAL"
@@ -15,6 +16,7 @@ resource "aws_resourceexplorer2_index" "us_west_1" {
   }
 }
 
+# Import: terraform import -provider=aws.us_west_1 'module.aws_resource_inventory.aws_resourceexplorer2_view.us_west_1[0]' <view-arn>
 resource "aws_resourceexplorer2_view" "us_west_1" {
   count    = var.regional_aws["us-west-1"].is_resource_explorer_aggregator ? 1 : 0
   provider = aws.us_west_1
@@ -30,6 +32,7 @@ resource "aws_resourceexplorer2_view" "us_west_1" {
 }
 
 # --- AWS: Resource Explorer index and view (us-west-2) ---
+# Import: terraform import -provider=aws.us_west_2 'module.aws_resource_inventory.aws_resourceexplorer2_index.us_west_2' <region> (e.g. us-west-2)
 resource "aws_resourceexplorer2_index" "us_west_2" {
   provider = aws.us_west_2
   type     = var.regional_aws["us-west-2"].is_resource_explorer_aggregator ? "AGGREGATOR" : "LOCAL"
@@ -40,6 +43,7 @@ resource "aws_resourceexplorer2_index" "us_west_2" {
   }
 }
 
+# Import: terraform import -provider=aws.us_west_2 'module.aws_resource_inventory.aws_resourceexplorer2_view.us_west_2[0]' <view-arn>
 resource "aws_resourceexplorer2_view" "us_west_2" {
   count    = var.regional_aws["us-west-2"].is_resource_explorer_aggregator ? 1 : 0
   provider = aws.us_west_2
@@ -55,11 +59,13 @@ resource "aws_resourceexplorer2_view" "us_west_2" {
 }
 
 # --- P0: AWS Resource Inventory (staged + IAM role + finalize) ---
+# Import: see P0 provider docs for p0_aws_inventory_staged import (if supported).
 resource "p0_aws_inventory_staged" "resource_inventory_staged" {
   partition = "aws"
   id        = var.aws_account_id
 }
 
+# Import: terraform import 'module.aws_resource_inventory.aws_iam_role.p0_iam_resource_lister' <role-name> (from p0_aws_inventory_staged output)
 resource "aws_iam_role" "p0_iam_resource_lister" {
   provider = aws
   name     = p0_aws_inventory_staged.resource_inventory_staged.role.name
@@ -73,6 +79,7 @@ resource "aws_iam_role" "p0_iam_resource_lister" {
   tags = var.tags
 }
 
+# Import: see P0 provider docs for p0_aws_inventory import (if supported).
 resource "p0_aws_inventory" "resource_inventory" {
   id         = var.aws_account_id
   partition  = "aws"

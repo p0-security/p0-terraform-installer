@@ -12,6 +12,7 @@ locals {
 }
 
 # --- AWS: P0 IAM manager role (used by P0 for IAM, resource inventory, and SSH) ---
+# Import: terraform import 'module.aws_iam_management.aws_iam_role.p0_iam_role' P0RoleIamManager
 resource "aws_iam_role" "p0_iam_role" {
   name = local.role_name
 
@@ -279,6 +280,7 @@ data "aws_iam_policy_document" "p0_grants_role_trust_policy" {
   }
 }
 
+# Import: terraform import 'module.aws_iam_management.aws_iam_role.p0_grants_roles[0]' P0GrantsRole0 (use [1], [2] etc. for more roles)
 resource "aws_iam_role" "p0_grants_roles" {
   count              = var.role_count
   name               = format("P0GrantsRole%s", count.index)
@@ -288,6 +290,7 @@ resource "aws_iam_role" "p0_grants_roles" {
   tags = local.tags
 }
 
+# Import: terraform import 'module.aws_iam_management.aws_iam_role_policy.p0_policy_shared_ssh[0]' P0GrantsRole0:P0PolicySharedSSH (role_name:policy_name)
 resource "aws_iam_role_policy" "p0_policy_shared_ssh" {
   count = var.role_count
 
@@ -323,11 +326,13 @@ EOF
 }
 
 # --- P0: AWS IAM Management integration ---
+# Import: see P0 provider docs for p0_aws_iam_write_staged import (if supported).
 resource "p0_aws_iam_write_staged" "iam_write_staged" {
   partition = "aws"
   id        = local.account_id
 }
 
+# Import: see P0 provider docs for p0_aws_iam_write import (if supported).
 resource "p0_aws_iam_write" "iam_write" {
   id         = local.account_id
   depends_on = [p0_aws_iam_write_staged.iam_write_staged]

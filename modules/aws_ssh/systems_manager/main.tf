@@ -4,6 +4,7 @@ locals {
   }
 }
 
+# Import: terraform import -provider=aws.default 'module.aws_ssh.module.systems_manager.aws_iam_role.default_host_management_role' AWSSystemsManagerDefaultEC2InstanceManagementRole
 resource "aws_iam_role" "default_host_management_role" {
   provider = aws.default
 

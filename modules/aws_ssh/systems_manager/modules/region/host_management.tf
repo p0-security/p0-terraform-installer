@@ -16,6 +16,7 @@ locals {
   }
 }
 
+# Import: terraform import -provider=aws.us_west_1 'module.aws_ssh.module.systems_manager.module.region_us_west_1.aws_ssm_service_setting.ssm_service_settings["/ssm/managed-instance/default-ec2-instance-management-role"]' <setting_id> (use region_us_west_2 for us-west-2; setting_id = full ARN)
 resource "aws_ssm_service_setting" "ssm_service_settings" {
   for_each = toset(keys(local.ssm_service_settings))
 
@@ -30,6 +31,7 @@ resource "aws_ssm_service_setting" "ssm_service_settings" {
   }
 }
 
+# Import: terraform import -provider=aws.us_west_1 'module.aws_ssh.module.systems_manager.module.region_us_west_1.aws_ssm_association.update_ssm_agent' <association-id> (use region_us_west_2 for us-west-2)
 resource "aws_ssm_association" "update_ssm_agent" {
   name                = "AWS-UpdateSSMAgent"
   association_name    = "UpdateSSMAgent-do-not-delete"

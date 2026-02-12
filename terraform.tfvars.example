@@ -1,19 +1,22 @@
 okta = {
+  # Required for any Okta related installation
   org_name = "<your-okta-org-name>"
   base_url = "okta.com"
   tfauth = {
     client_id = "<your-okta-client-id>"
-    # Minimum scopes required for this repo: apps (login + API integration) and roles (custom role, resource set, role assignment).
-    scopes = ["okta.apps.manage", "okta.apps.read", "okta.roles.manage", "okta.roles.read"]
+    # Minimum scopes: apps, roles, and policies (provider sets OAuth app authentication/access policy; see README).
+    scopes = ["okta.apps.manage", "okta.apps.read", "okta.roles.manage", "okta.roles.read", "okta.policies.read", "okta.policies.manage"]
     # Set the OKTA_API_PRIVATE_KEY environment variable to the private key value starting with ----BEGIN PRIVATE KEY----
     # OKTA_API_PRIVATE_KEY must be in PEM format when it is output from the Okta UI
     # Alternatively, use the jwk-to-pem.py utility to convert a JWK private key to a PEM private key
     private_key_id = "<your-okta-private-key-id>"
   }
+  # Required for Okta login installation
   native_app = {
     app_name          = "<your-okta-native-app-name>"
     app_redirect_uris = ["https://p0.app/oidc/auth/_redirect"]
   }
+  # Required for Okta group listing installation
   api_integration_app = {
     app_name = "<your-okta-api-integration-app-name>"
   }
@@ -27,7 +30,7 @@ p0 = {
 identity_center_parent_account_id = "<your-identity-center-parent-account-id>"
 
 aws = {
-  // User needs to configure this
+  # Name of your existing SAML IdP in IAM (used for P0 grant roles). See README "Configuration" → AWS for how to find it (IAM → Identity providers, or aws iam list-saml-providers).
   saml_identity_provider_name = "<your-saml-identity-provider-name>"
   # Optional grouping tag for SSH; see https://docs.p0.dev/integrations/resource-integrations/ssh (e.g. p0 request ssh group --name <value>)
   group_key                   = "environment"
