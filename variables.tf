@@ -8,7 +8,7 @@ variable "okta" {
       client_id      = string
       scopes         = set(string)
       private_key_id = string
-      # Set the OKTA_API_PRIVATE_KEY environment variable to the private key value starting with ----BEGIN PRIVATE KEY----
+      # Set the OKTA_API_PRIVATE_KEY environment variable to the private key value starting with -----BEGIN PRIVATE KEY-----
     })
     native_app = object({
       app_name          = string
@@ -23,23 +23,20 @@ variable "okta" {
 variable "p0" {
   type = object({
     org_id                 = string
-    gcp_service_account_id = string
+    gcp_service_account_id = optional(string, "106141354930392279110")
   })
 }
 
 variable "aws" {
   type = object({
-    saml_identity_provider_name = string
-    role_count                  = number
-    group_key                   = string
+    group_key = optional(string)
   })
 }
 
-# Account ID where the IAM Identity Center instance lives (e.g. org management account or delegated admin). If null, current account is used.
+# Account ID where the IAM Identity Center instance lives (org management account or delegated admin).
 variable "identity_center_parent_account_id" {
   type        = string
-  default     = null
-  description = "Identity Center parent account ID; set in tfvars for org/delegated setups, leave unset for current account."
+  description = "Identity Center parent account ID (org management or delegated admin account)."
 }
 
 # A map of region name to variables for that region
