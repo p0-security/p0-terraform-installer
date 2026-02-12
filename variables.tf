@@ -22,12 +22,15 @@ variable "okta" {
 
 variable "kubernetes" {
   type = object({
-    cluster_id = string
-    cluster_endpoint = string
-    cluster_arn = string
-    cluster_ca = string
-    aws_region = string # us-west-2
-    org = string # 1password
+    cluster = object({
+      id              = string
+      arn             = string
+      endpoint        = string
+      cert_authority  = string
+      region          = string
+    })
+  
+    org = string
   })
 }
 
