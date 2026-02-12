@@ -1,4 +1,4 @@
-# Initializes configuration for the integration and generates PKI values
+# Initializes configuration for the integration and generates PKI values for later use
 resource "p0_kubernetes_staged" "tf-staged-test-cluster" {
   id                    = var.kubernetes.cluster.id
   connectivity_type     = "proxy"
@@ -15,9 +15,10 @@ resource "kubernetes_namespace_v1" "p0_security" {
   }
 }
 
-# TODO: make it so that this runs for auto-mode clusters only.
+# TODO: add EBS-CSI driver on non-auto-mode clusters
+
 # Creates a storage class on the cluster, which is used by the braekhus proxy service.
-resource "kubernetes_storage_class_v1" "auto_ebs" {
+resource "kubernetes_storage_class_v1" "auto_ebs" { # TODO: make it so that this runs for auto-mode clusters only.
   metadata {
     name = "auto-ebs-sc"
     annotations = {
@@ -34,7 +35,6 @@ resource "kubernetes_storage_class_v1" "auto_ebs" {
   }
 }
 
-# Creates a PVC on the cluster
 resource "kubernetes_persistent_volume_claim_v1" "p0_files_volume_claim" {
   metadata {
     namespace = kubernetes_namespace_v1.p0_security.metadata[0].name
@@ -43,7 +43,7 @@ resource "kubernetes_persistent_volume_claim_v1" "p0_files_volume_claim" {
 
   spec {
     access_modes       = ["ReadWriteOnce"]
-    storage_class_name = kubernetes_storage_class_v1.auto_ebs.metadata[0].name
+    storage_class_name = kubernetes_storage_class_v1.auto_ebs.metadata[0].name # TODO: make this gp2 for non-auto-mode cluster
 
     resources {
       requests = {
@@ -53,7 +53,7 @@ resource "kubernetes_persistent_volume_claim_v1" "p0_files_volume_claim" {
   }
 }
 
-# Creates a K8s deployment of braekhus-proxy pods in the P0 namespace
+# Creates the P0 Braekhus proxy
 resource "kubernetes_deployment_v1" "p0_braekhus_proxy" {
   metadata {
     name      = "p0-braekhus-proxy"
@@ -152,7 +152,7 @@ resource "kubernetes_deployment_v1" "p0_braekhus_proxy" {
   depends_on = [p0_kubernetes_staged.tf-staged-test-cluster]
 }
 
-# Creates a P0 service account on the cluster
+# Creates service account on the cluster
 resource "kubernetes_service_account_v1" "p0_service_account" {
   metadata {
     name      = "p0-service-account"
@@ -162,7 +162,7 @@ resource "kubernetes_service_account_v1" "p0_service_account" {
   depends_on = [p0_kubernetes_staged.tf-staged-test-cluster]
 }
 
-# Creates a P0 service account secret on the cluster
+# Creates secret
 resource "kubernetes_secret_v1" "p0_service_account_secret" {
   metadata {
     name      = "p0-service-account-secret"
@@ -177,7 +177,7 @@ resource "kubernetes_secret_v1" "p0_service_account_secret" {
   depends_on = [p0_kubernetes_staged.tf-staged-test-cluster]
 }
 
-# Creates a P0 service role on the cluster with the following permissions
+# Creates cluster-role and cluster-role binding
 resource "kubernetes_cluster_role_v1" "p0_service_role" {
   metadata {
     name = "p0-service-role"
@@ -257,7 +257,6 @@ resource "kubernetes_cluster_role_v1" "p0_service_role" {
   }
 }
 
-# Creates a P0 service role binding
 resource "kubernetes_cluster_role_binding_v1" "p0_service_role_binding" {
   metadata {
     name = "p0-service-role-binding"
@@ -276,7 +275,7 @@ resource "kubernetes_cluster_role_binding_v1" "p0_service_role_binding" {
   }
 }
 
-# Creates a K8s deployment of admission-controller pods in the P0 namespace
+# Creates the P0 admission-controller
 resource "kubernetes_deployment_v1" "p0_admission_controller" {
   metadata {
     name      = "p0-admission-controller"
@@ -332,7 +331,6 @@ resource "kubernetes_deployment_v1" "p0_admission_controller" {
   }
 }
 
-# Creates the admission controller service 
 resource "kubernetes_service_v1" "p0_admission_controller" {
   metadata {
     name      = "p0-admission-controller"
@@ -355,7 +353,6 @@ resource "kubernetes_service_v1" "p0_admission_controller" {
   }
 }
 
-# Creates a validating webhook
 resource "kubernetes_validating_webhook_configuration_v1" "p0_admission_controller" {
   metadata {
     name = "p0-admission-controller"
