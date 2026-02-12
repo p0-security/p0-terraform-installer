@@ -18,7 +18,9 @@ resource "kubernetes_namespace_v1" "p0_security" {
 # TODO: add EBS-CSI driver on non-auto-mode clusters
 
 # Creates a storage class on the cluster, which is used by the braekhus proxy service.
-resource "kubernetes_storage_class_v1" "auto_ebs" { # TODO: make it so that this runs for auto-mode clusters only.
+resource "kubernetes_storage_class_v1" "auto_ebs" {
+  count = var.kubernetes.cluster.auto_mode_enabled ? 1 : 0
+
   metadata {
     name = "auto-ebs-sc"
     annotations = {
@@ -43,7 +45,7 @@ resource "kubernetes_persistent_volume_claim_v1" "p0_files_volume_claim" {
 
   spec {
     access_modes       = ["ReadWriteOnce"]
-    storage_class_name = kubernetes_storage_class_v1.auto_ebs.metadata[0].name # TODO: make this gp2 for non-auto-mode cluster
+    storage_class_name = var.kubernetes.cluster.auto_mode_enabled ? kubernetes_storage_class_v1.auto_ebs[0].metadata[0].name : "gp2"
 
     resources {
       requests = {
