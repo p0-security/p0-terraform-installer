@@ -1,11 +1,11 @@
 # Initializes configuration for the integration and generates PKI values
 resource "p0_kubernetes_staged" "tf-staged-test-cluster" {
-  id                    = var.kubernetes.cluster_id
+  id                    = var.kubernetes.cluster.id
   connectivity_type     = "proxy"
   hosting_type          = "aws"
-  cluster_arn           = var.kubernetes.cluster_arn
-  cluster_endpoint      = var.kubernetes.cluster_endpoint
-  certificate_authority = var.kubernetes.cluster_ca
+  cluster_arn           = var.kubernetes.cluster.arn
+  cluster_endpoint      = var.kubernetes.cluster.endpoint
+  certificate_authority = var.kubernetes.cluster.cert_authority
 }
 
 # Creates a namespace on the cluster 
@@ -21,7 +21,7 @@ resource "kubernetes_storage_class_v1" "auto_ebs" {
   metadata {
     name = "auto-ebs-sc"
     annotations = {
-      "storageclass.kubernetes.io/is-default-class" = "true"
+      "storageclass.kubernetes.cluster.io/is-default-class" = "true"
     }
   }
 
@@ -65,7 +65,7 @@ resource "kubernetes_deployment_v1" "p0_braekhus_proxy" {
 
     selector {
       match_labels = {
-        "app.kubernetes.io/name" = "p0-braekhus-proxy"
+        "app.kubernetes.cluster.io/name" = "p0-braekhus-proxy"
       }
     }
 
@@ -77,7 +77,7 @@ resource "kubernetes_deployment_v1" "p0_braekhus_proxy" {
       metadata {
         name = "p0-braekhus-proxy"
         labels = {
-          "app.kubernetes.io/name" = "p0-braekhus-proxy"
+          "app.kubernetes.cluster.io/name" = "p0-braekhus-proxy"
         }
       }
 
@@ -87,7 +87,7 @@ resource "kubernetes_deployment_v1" "p0_braekhus_proxy" {
           image = "bash"
           args = [
             "-c",
-            "echo ${var.kubernetes.cluster_ca} | base64 -d | tee /p0-files/ca.pem"
+            "echo ${var.kubernetes.cluster.cert_authority} | base64 -d | tee /p0-files/ca.pem"
           ]
 
           volume_mount {
@@ -104,13 +104,13 @@ resource "kubernetes_deployment_v1" "p0_braekhus_proxy" {
           args = [
             "start:prod:client",
             "--targetUrl",
-            var.kuberntes.cluster_endpoint,
+            var.kuberntes.cluster.endpoint,
             "--clientId",
-            "p0-gus:${var.kubernetes.cluster_id}",
+            "p0-gus:${var.kubernetes.cluster.id}",
             "--jwkPath",
             "/p0-files",
             "--tunnelHost",
-            "${var.kubernetes.org}.braekhus.p0.app",
+            "${var.kubernetes.cluster.org}.braekhus.p0.app",
             "--tunnelPort",
             "443"
           ]
@@ -168,11 +168,11 @@ resource "kubernetes_secret_v1" "p0_service_account_secret" {
     name      = "p0-service-account-secret"
     namespace = kubernetes_namespace_v1.p0_security.metadata[0].name
     annotations = {
-      "kubernetes.io/service-account.name" = kubernetes_service_account_v1.p0_service_account.metadata[0].name
+      "kubernetes.cluster.io/service-account.name" = kubernetes_service_account_v1.p0_service_account.metadata[0].name
     }
   }
 
-  type = "kubernetes.io/service-account-token"
+  type = "kubernetes.cluster.io/service-account-token"
 
   depends_on = [p0_kubernetes_staged.tf-staged-test-cluster]
 }
@@ -288,7 +288,7 @@ resource "kubernetes_deployment_v1" "p0_admission_controller" {
 
     selector {
       match_labels = {
-        "app.kubernetes.io/name" = "p0-admission-controller"
+        "app.kubernetes.cluster.io/name" = "p0-admission-controller"
       }
     }
 
@@ -296,7 +296,7 @@ resource "kubernetes_deployment_v1" "p0_admission_controller" {
       metadata {
         name = "p0-admission-controller"
         labels = {
-          "app.kubernetes.io/name" = "p0-admission-controller"
+          "app.kubernetes.cluster.io/name" = "p0-admission-controller"
         }
       }
 
@@ -350,7 +350,7 @@ resource "kubernetes_service_v1" "p0_admission_controller" {
     }
 
     selector = {
-      "app.kubernetes.io/name" = "p0-admission-controller"
+      "app.kubernetes.cluster.io/name" = "p0-admission-controller"
     }
   }
 }
@@ -397,15 +397,15 @@ data "external" "braekhus_public_jwk" {
 
 # Adds access credentials to the intergration configuration and verifies installation
 resource "p0_kubernetes" "tf-test-cluster" {
-  id         = var.kubernetes.cluster_id
+  id         = var.kubernetes.cluster.id
   token      = kubernetes_secret_v1.p0_service_account_secret.data["token"]
   public_jwk = data.external.braekhus_public_jwk.result.public_jwk
 
   connectivity_type     = "proxy"
   hosting_type          = "aws"
-  cluster_arn           = var.kubernetes.cluster_arn
-  cluster_endpoint      = var.kubernetes.cluster_endpoint
-  certificate_authority = var.kubernetes.cluster_ca
+  cluster_arn           = var.kubernetes.cluster.arn
+  cluster_endpoint      = var.kubernetes.cluster.endpoint
+  certificate_authority = var.kubernetes.cluster.cert_authority
 
   depends_on = [external.braekhus_public_jwk]
 }
