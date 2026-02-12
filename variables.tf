@@ -28,6 +28,7 @@ variable "kubernetes" {
       endpoint        = string
       cert_authority  = string
       region          = string
+      auto_mode_enabled = bool
     })
   })
 }
