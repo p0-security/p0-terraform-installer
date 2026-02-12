@@ -8,12 +8,3 @@ variable "identity_center_parent_account_id" {
   type        = string
 }
 
-variable "saml_identity_provider_name" {
-  description = "Name of the SAML identity provider in AWS that the P0 grant roles must trust"
-  type        = string
-}
-
-variable "role_count" {
-  description = "Number of P0GrantsRole* roles to create for access requests"
-  type        = number
-}

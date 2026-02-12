@@ -4,8 +4,8 @@ okta = {
   base_url = "okta.com"
   tfauth = {
     client_id = "<your-okta-client-id>"
-    # Minimum scopes: apps, roles, and policies (provider sets OAuth app authentication/access policy; see README).
-    scopes = ["okta.apps.manage", "okta.apps.read", "okta.roles.manage", "okta.roles.read", "okta.policies.read", "okta.policies.manage"]
+    # Minimum scopes: apps, app grants (scope consent), roles, and policies (provider sets OAuth app authentication/access policy; see README).
+    scopes = ["okta.apps.manage", "okta.apps.read", "okta.appGrants.manage", "okta.roles.manage", "okta.roles.read", "okta.policies.read", "okta.policies.manage"]
     # Set the OKTA_API_PRIVATE_KEY environment variable to the private key value starting with ----BEGIN PRIVATE KEY----
     # OKTA_API_PRIVATE_KEY must be in PEM format when it is output from the Okta UI
     # Alternatively, use the jwk-to-pem.py utility to convert a JWK private key to a PEM private key
@@ -30,12 +30,12 @@ p0 = {
 identity_center_parent_account_id = "<your-identity-center-parent-account-id>"
 
 aws = {
-  # Name of your existing SAML IdP in IAM (used for P0 grant roles). See README "Configuration" → AWS for how to find it (IAM → Identity providers, or aws iam list-saml-providers).
-  saml_identity_provider_name = "<your-saml-identity-provider-name>"
   # Optional grouping tag for SSH; see https://docs.p0.dev/integrations/resource-integrations/ssh (e.g. p0 request ssh group --name <value>)
-  group_key                   = "environment"
+  group_key = "environment"
 }
 
+# Used by the SSH integration: SSM VPC endpoints are created in each listed VPC so EC2 instances there can be managed via P0/Systems Manager.
+# To find VPC IDs for a region: AWS Console → VPC → Your VPCs, or CLI: aws ec2 describe-vpcs --region <region> --query 'Vpcs[].[VpcId,Tags[?Key==`Name`].Value|[0]]' --output table
 regional_aws = {
   us-west-1 = {
     enabled_vpcs                    = ["<your-us-west-1-vpc-id>"]

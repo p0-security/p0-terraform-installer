@@ -83,6 +83,10 @@ resource "p0_routing_rule" "okta_group_approval" {
       id        = "00example-group-id"
       label     = "Example Okta Group"
     }]
+
+    options = {
+      require_preapproval = true
+    }
   }]
 }
 
@@ -101,9 +105,6 @@ resource "p0_routing_rule" "pagerduty_auto_approval" {
   approval = [{
     type        = "auto"
     integration = "pagerduty"
-    options = {
-      require_reason = true
-    }
   }]
 }
 
@@ -123,8 +124,5 @@ resource "p0_routing_rule" "escalation_service_approval" {
     type        = "escalation"
     integration = "pagerduty"
     services    = ["security-escalation"]
-    options = {
-      require_preapproval = true
-    }
   }]
 }

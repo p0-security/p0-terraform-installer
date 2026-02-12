@@ -29,9 +29,7 @@ variable "p0" {
 
 variable "aws" {
   type = object({
-    saml_identity_provider_name = string
-    group_key                   = string
-    role_count                  = optional(number, 10)
+    group_key = string
   })
 }
 

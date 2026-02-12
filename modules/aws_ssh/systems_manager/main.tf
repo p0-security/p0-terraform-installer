@@ -41,7 +41,7 @@ module "region_us_west_1" {
     aws = aws.us_west_1
   }
 
-  enabled_vpcs                      = var.regional_aws["us-west-1"].enabled_vpcs
+  enabled_vpcs                      = toset([for v in var.regional_aws["us-west-1"].enabled_vpcs : trimspace(v)])
   default_host_management_role_path = aws_iam_role.default_host_management_role.path
   default_host_management_role_name = aws_iam_role.default_host_management_role.name
 }
@@ -52,7 +52,7 @@ module "region_us_west_2" {
     aws = aws.us_west_2
   }
 
-  enabled_vpcs                      = var.regional_aws["us-west-2"].enabled_vpcs
+  enabled_vpcs                      = toset([for v in var.regional_aws["us-west-2"].enabled_vpcs : trimspace(v)])
   default_host_management_role_path = aws_iam_role.default_host_management_role.path
   default_host_management_role_name = aws_iam_role.default_host_management_role.name
 }

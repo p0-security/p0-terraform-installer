@@ -26,10 +26,10 @@ terraform {
 # Required scopes (okta.tfauth.scopes) are derived from the Okta resources in this repo:
 #   - okta_app_oauth (okta_native_login, okta_api_integration)  → okta.apps.manage, okta.apps.read
 #   - okta_app_oauth (provider may set app authentication/access policy)     → okta.policies.read, okta.policies.manage
-#   - okta_app_oauth_api_scope (assign scopes to API integration) → okta.apps.manage (app grant/scope)
+#   - okta_app_oauth_api_scope (grant scope consent to API integration app)  → okta.appGrants.manage
 #   - okta_admin_role_custom, okta_resource_set (okta_api_integration_common) → okta.roles.manage, okta.roles.read
 #   - okta_app_oauth_role_assignment (assign role to API integration app)   → okta.roles.manage, okta.roles.read
-# So the minimum set is: okta.apps.manage, okta.apps.read, okta.roles.manage, okta.roles.read, okta.policies.read, okta.policies.manage
+# So the minimum set is: okta.apps.manage, okta.apps.read, okta.appGrants.manage, okta.roles.manage, okta.roles.read, okta.policies.read, okta.policies.manage
 provider "okta" {
   org_name       = var.okta.org_name
   base_url       = var.okta.base_url
@@ -98,60 +98,58 @@ module "okta_group_listing" {
 # /**********************************
 #   AWS IAM management (P0 roles + P0 IAM integration)
 # **********************************/
-# module "aws_iam_management" {
-#   source = "./modules/aws_iam_management"
+module "aws_iam_management" {
+  source = "./modules/aws_iam_management"
 
-#   gcp_service_account_id            = var.p0.gcp_service_account_id
-#   identity_center_parent_account_id = var.identity_center_parent_account_id
-#   saml_identity_provider_name       = var.aws.saml_identity_provider_name
-#   role_count                        = var.aws.role_count
-# }
+  gcp_service_account_id            = var.p0.gcp_service_account_id
+  identity_center_parent_account_id = var.identity_center_parent_account_id
+}
 
 # /******************************************
 #   AWS resource inventory (Resource Explorer + P0 inventory)
 # ******************************************/
-# module "aws_resource_inventory" {
-#   source = "./modules/aws_resource_inventory"
+module "aws_resource_inventory" {
+  source = "./modules/aws_resource_inventory"
 
-#   aws_account_id = data.aws_caller_identity.current.account_id
-#   tags           = local.tags
-#   regional_aws = {
-#     "us-west-1" = { is_resource_explorer_aggregator = var.regional_aws["us-west-1"].is_resource_explorer_aggregator }
-#     "us-west-2" = { is_resource_explorer_aggregator = var.regional_aws["us-west-2"].is_resource_explorer_aggregator }
-#   }
+  aws_account_id = data.aws_caller_identity.current.account_id
+  tags           = local.tags
+  regional_aws = {
+    "us-west-1" = { is_resource_explorer_aggregator = var.regional_aws["us-west-1"].is_resource_explorer_aggregator }
+    "us-west-2" = { is_resource_explorer_aggregator = var.regional_aws["us-west-2"].is_resource_explorer_aggregator }
+  }
 
-#   providers = {
-#     aws           = aws
-#     aws.us_west_1 = aws.us_west_1
-#     aws.us_west_2 = aws.us_west_2
-#   }
+  providers = {
+    aws           = aws
+    aws.us_west_1 = aws.us_west_1
+    aws.us_west_2 = aws.us_west_2
+  }
 
-#   depends_on = [module.aws_iam_management]
-# }
+  depends_on = [module.aws_iam_management]
+}
 
 # /**********************************
 #   AWS SSH (Systems Manager + SSM documents + P0 SSH)
 # **********************************/
-# module "aws_ssh" {
-#   source = "./modules/aws_ssh"
+module "aws_ssh" {
+  source = "./modules/aws_ssh"
 
-#   regional_aws        = var.regional_aws
-#   aws_account_id      = data.aws_caller_identity.current.account_id
-#   aws_group_key       = var.aws.group_key
-#   aws_is_sudo_enabled = true
+  regional_aws        = var.regional_aws
+  aws_account_id      = data.aws_caller_identity.current.account_id
+  aws_group_key       = var.aws.group_key
+  aws_is_sudo_enabled = true
 
-#   providers = {
-#     aws.default   = aws
-#     aws.us_west_1 = aws.us_west_1
-#     aws.us_west_2 = aws.us_west_2
-#   }
+  providers = {
+    aws.default   = aws
+    aws.us_west_1 = aws.us_west_1
+    aws.us_west_2 = aws.us_west_2
+  }
 
-#   depends_on = [module.aws_iam_management]
-# }
+  depends_on = [module.aws_iam_management]
+}
 
-# /**********************************
-#   P0 routing rules
-# **********************************/
-# module "p0_routing_rules" {
-#   source = "./modules/p0_routing_rules"
-# }
+/**********************************
+  P0 routing rules
+**********************************/
+module "p0_routing_rules" {
+  source = "./modules/p0_routing_rules"
+}

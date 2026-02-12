@@ -72,14 +72,15 @@ This module set is intended to bootstrap everything P0 needs to:
     - **Required OAuth 2.0 scopes**:
       - `okta.roles.manage` – create custom admin roles and resource sets, and assign roles to apps
       - `okta.roles.read` – read roles and resource sets
-      - `okta.apps.manage` – create and manage OAuth apps (the P0 login app and the P0 API integration app) and their API scopes
+      - `okta.apps.manage` – create and manage OAuth apps (the P0 login app and the P0 API integration app)
       - `okta.apps.read` – read app information
+      - `okta.appGrants.manage` – grant scope consent to the API integration app (required for `okta_app_oauth_api_scope`); without this you may see "The access token provided does not contain the required scopes" when applying the okta_group_listing module
       - `okta.policies.read` and `okta.policies.manage` – the Okta provider reads/sets the default authentication (access) policy when managing OAuth apps; without these you may see “The access token provided does not contain the required scopes” when applying.
         For more information about these scopes, see [Okta OAuth 2.0 scopes](https://developer.okta.com/docs/api/oauth2/) and [Control Terraform access to Okta](https://developer.okta.com/docs/guides/terraform-design-access-security/main/).
     - **If creating a new app:** In the Okta Admin Console go to **Applications → Create App Integration → API Services → Enter a name for the app**.
     - **Regardless if you are using a new app of an existing one:** Add a public key and note the **client ID** and **private key ID**.
       Store the PEM‑encoded private key (starting with `-----BEGIN PRIVATE KEY-----`) in the `OKTA_API_PRIVATE_KEY` environment variable. You can export a PEM from the Okta UI or use the repo’s `jwk-to-pem.py` script if your key is in JWK form.
-    - The list of scopes in your Terraform provider config (`okta.tfauth.scopes` in `terraform.tfvars`) must include at least the six scopes above (and must match what the app is granted in Okta).
+    - The list of scopes in your Terraform provider config (`okta.tfauth.scopes` in `terraform.tfvars`) must include at least the seven scopes above (and must match what the app is granted in Okta).
 
 - **P0**
   - A P0 organization configured in the [P0 app](https://p0.app). See [P0 Onboarding](https://docs.p0.dev/p0-security-onboarding) for setup.
@@ -125,9 +126,6 @@ At a high level you must configure:
 
 - **AWS**
   - `identity_center_parent_account_id` – AWS account ID that hosts IAM Identity Center. If you are using a delegated account, you must still provide the ID of the parent account here.
-  - `aws.saml_identity_provider_name` – name of the **existing** SAML identity provider in your AWS account that the P0 grant roles (`P0GrantsRole*`) trust for `AssumeRoleWithSAML` (e.g. when users sign in via Okta SSO). The value must match the provider name exactly. To find it:
-    - **Console:** IAM → Identity providers → use the **Provider name** of your SAML IdP (e.g. Okta).
-    - **CLI:** `aws iam list-saml-providers` — the name is the part after `saml-provider/` in each ARN (e.g. `arn:aws:iam::123456789012:saml-provider/Okta` → use `Okta`).
   - `aws.group_key` – Optional [grouping tag](https://docs.p0.dev/integrations/resource-integrations/ssh) for SSH (e.g. use with `p0 request ssh group --name <value>`).
   - `regional_aws` – per‑region configuration including:
     - which VPCs are enabled (used for Systems Manager / SSH via SSM VPC endpoints)
