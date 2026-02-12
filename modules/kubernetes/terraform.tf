@@ -110,7 +110,7 @@ resource "kubernetes_deployment_v1" "p0_braekhus_proxy" {
             "--jwkPath",
             "/p0-files",
             "--tunnelHost",
-            "${var.kubernetes.cluster.org}.braekhus.p0.app",
+            "${var.p0.org_id}.braekhus.p0.app",
             "--tunnelPort",
             "443"
           ]
