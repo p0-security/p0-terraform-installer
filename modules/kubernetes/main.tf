@@ -170,7 +170,8 @@ resource "kubernetes_deployment_v1" "p0_braekhus_proxy" {
             "--jwkPath",
             "/p0-files",
             "--tunnelHost",
-            "${var.p0_config.org}.braekhus.p0.app",
+            #"${var.p0_config.org}.braekhus.p0.app", # TODO: fix for dev
+            "black-iron-direwolf.ngrok.app",
             "--tunnelPort",
             "443"
           ]
@@ -228,13 +229,13 @@ resource "kubernetes_secret_v1" "p0_service_account_secret" {
     name      = "p0-service-account-secret"
     namespace = kubernetes_namespace_v1.p0_security.metadata[0].name
     annotations = {
-      "kubernetes.cluster.io/service-account.name" = kubernetes_service_account_v1.p0_service_account.metadata[0].name
+      "kubernetes.io/service-account.name" = kubernetes_service_account_v1.p0_service_account.metadata[0].name
     }
   }
 
-  type = "kubernetes.cluster.io/service-account-token"
+  type                           = "kubernetes.io/service-account-token"
+  wait_for_service_account_token = true
 
-  depends_on = [p0_kubernetes_staged.tf-staged-test-cluster]
 }
 
 # Creates cluster-role and cluster-role binding
