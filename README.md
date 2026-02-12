@@ -1,4 +1,4 @@
-## p0-terraform-install
+## p0-terraform-installer
 
 Deploy P0 integrations into an existing Okta + AWS environment using Terraform.
 
@@ -134,14 +134,22 @@ At a high level you must configure:
       - add or update aliased `aws` providers in `main.tf` (e.g. `provider "aws" { alias = "eu_west_1" region = "eu-west-1" }`)
       - update the `aws_resource_inventory` and `aws_ssh` module calls in `main.tf` to pass the new providers and extend `regional_aws` and each module’s regional configuration (e.g. `modules/aws_resource_inventory` and `modules/aws_ssh/systems_manager`).
 
+### Backend
+
+State is configured for the S3 backend with **partial configuration**: no bucket, key, or region are in the repo. Provide them at init time so this repo stays shareable.
+
+1. Copy `backend.hcl.example` to `backend.hcl` (do not commit `backend.hcl`).
+2. Edit `backend.hcl` with your S3 bucket, key, and region.
+3. Initialize with: `terraform init -backend-config=backend.hcl`
+
 ### Usage
 
 1. **Clone this repository** and review `variables.tf` and `terraform.tfvars.example`.
 2. **Create your own `terraform.tfvars`** (not committed) based on the example, filling in your Okta, P0, and AWS values.
 3. **Export the required environment variables**:
    - `P0_API_TOKEN`, `OKTA_API_PRIVATE_KEY`, and AWS credentials.
-4. **Initialize Terraform**:
-   - `terraform init`
+4. **Initialize Terraform** (see **Backend** above if using remote state):
+   - `terraform init -backend-config=backend.hcl` (or `terraform init` if not using S3 backend).
 5. **Review the planned changes**:
    - `terraform plan`
 6. **Apply** when ready:

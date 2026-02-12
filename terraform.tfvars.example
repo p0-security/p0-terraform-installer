@@ -6,7 +6,7 @@ okta = {
     client_id = "<your-okta-client-id>"
     # Minimum scopes: apps, app grants (scope consent), roles, and policies (provider sets OAuth app authentication/access policy; see README).
     scopes = ["okta.apps.manage", "okta.apps.read", "okta.appGrants.manage", "okta.roles.manage", "okta.roles.read", "okta.policies.read", "okta.policies.manage"]
-    # Set the OKTA_API_PRIVATE_KEY environment variable to the private key value starting with ----BEGIN PRIVATE KEY----
+    # Set the OKTA_API_PRIVATE_KEY environment variable to the private key value starting with -----BEGIN PRIVATE KEY-----
     # OKTA_API_PRIVATE_KEY must be in PEM format when it is output from the Okta UI
     # Alternatively, use the jwk-to-pem.py utility to convert a JWK private key to a PEM private key
     private_key_id = "<your-okta-private-key-id>"

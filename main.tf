@@ -1,8 +1,8 @@
 terraform {
   backend "s3" {
-    bucket = "mike-d-tf-state"
-    key    = "p0-tf-install"
-    region = "us-west-2"
+    # Omit bucket, key, region here; provide them via -backend-config so this repo stays shareable.
+    # Example: terraform init -backend-config=backend.hcl
+    # See backend.hcl.example and README "Backend" section.
   }
   required_providers {
     okta = {
@@ -71,9 +71,9 @@ locals {
   okta_org_domain = "${var.okta.org_name}.${var.okta.base_url}"
 }
 
-/**********************************
-  Okta login (native app for user auth)
-**********************************/
+# /**********************************
+#   Okta login (native app for user auth)
+# **********************************/
 module "okta_login" {
   source = "./modules/okta_login"
 
@@ -135,7 +135,7 @@ module "aws_ssh" {
 
   regional_aws        = var.regional_aws
   aws_account_id      = data.aws_caller_identity.current.account_id
-  aws_group_key       = var.aws.group_key
+  aws_group_key       = coalesce(var.aws.group_key, "")
   aws_is_sudo_enabled = true
 
   providers = {
@@ -147,9 +147,9 @@ module "aws_ssh" {
   depends_on = [module.aws_iam_management]
 }
 
-/**********************************
-  P0 routing rules
-**********************************/
+# /**********************************
+#   P0 routing rules
+# **********************************/
 module "p0_routing_rules" {
   source = "./modules/p0_routing_rules"
 }

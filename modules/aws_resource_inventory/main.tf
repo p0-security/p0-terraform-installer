@@ -59,7 +59,7 @@ resource "aws_resourceexplorer2_view" "us_west_2" {
 }
 
 # --- P0: AWS Resource Inventory (staged + IAM role + finalize) ---
-# Import: see P0 provider docs for p0_aws_inventory_staged import (if supported).
+# Import: terraform import 'module.aws_resource_inventory.p0_aws_inventory_staged.resource_inventory_staged' <id>
 resource "p0_aws_inventory_staged" "resource_inventory_staged" {
   partition = "aws"
   id        = var.aws_account_id
@@ -79,7 +79,7 @@ resource "aws_iam_role" "p0_iam_resource_lister" {
   tags = var.tags
 }
 
-# Import: see P0 provider docs for p0_aws_inventory import (if supported).
+# Import: terraform import 'module.aws_resource_inventory.p0_aws_inventory.resource_inventory' <id>
 resource "p0_aws_inventory" "resource_inventory" {
   id         = var.aws_account_id
   partition  = "aws"

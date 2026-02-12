@@ -25,7 +25,7 @@ module "ssm_documents_us_west_2" {
 }
 
 # --- P0: AWS SSH integration (requires IAM management to be installed first) ---
-# Import: see P0 provider docs for p0_ssh_aws import (if supported).
+# Import: terraform import 'module.aws_ssh.p0_ssh_aws.ssh' <account-id>
 resource "p0_ssh_aws" "ssh" {
   account_id      = var.aws_account_id
   group_key       = var.aws_group_key

@@ -248,13 +248,13 @@ EOF
 }
 
 # --- P0: AWS IAM Management integration ---
-# Import: see P0 provider docs for p0_aws_iam_write_staged import (if supported).
+# Import: terraform import 'module.aws_iam_management.p0_aws_iam_write_staged.iam_write_staged' <id>
 resource "p0_aws_iam_write_staged" "iam_write_staged" {
   partition = "aws"
   id        = local.account_id
 }
 
-# Import: see P0 provider docs for p0_aws_iam_write import (if supported).
+# Import: terraform import 'module.aws_iam_management.p0_aws_iam_write.iam_write' <id>
 resource "p0_aws_iam_write" "iam_write" {
   id         = local.account_id
   depends_on = [p0_aws_iam_write_staged.iam_write_staged]

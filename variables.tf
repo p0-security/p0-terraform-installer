@@ -8,7 +8,7 @@ variable "okta" {
       client_id      = string
       scopes         = set(string)
       private_key_id = string
-      # Set the OKTA_API_PRIVATE_KEY environment variable to the private key value starting with ----BEGIN PRIVATE KEY----
+      # Set the OKTA_API_PRIVATE_KEY environment variable to the private key value starting with -----BEGIN PRIVATE KEY-----
     })
     native_app = object({
       app_name          = string
@@ -29,7 +29,7 @@ variable "p0" {
 
 variable "aws" {
   type = object({
-    group_key = string
+    group_key = optional(string)
   })
 }
 
