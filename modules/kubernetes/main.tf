@@ -14,7 +14,9 @@ terraform {
   }
 }
 
-# Sets up authentication with the cluster
+# Sets up authentication with the cluster; This expects AWS CLI authentication is available in
+# the shell running terraform. You should be able to run "aws eks update-kubeconfig ..."
+# against the cluster you're currently installing the P0 integration on.
 provider "kubernetes" {
   host                   = data.aws_eks_cluster.cluster.endpoint
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
