@@ -98,7 +98,7 @@ resource "aws_eks_addon" "ebs_csi_driver" {
 resource "kubernetes_persistent_volume_claim_v1" "p0_files_volume_claim" {
   metadata {
     namespace = kubernetes_namespace_v1.p0_security.metadata[0].name
-    name      = "p0-files-volume-claim"
+    name      = local.p0_pvc_name
   }
 
   spec {
@@ -201,7 +201,7 @@ resource "kubernetes_deployment_v1" "p0_braekhus_proxy" {
           name = "p0-files-storage"
 
           persistent_volume_claim {
-            claim_name = kubernetes_persistent_volume_claim_v1.p0_files_volume_claim.metadata[0].name
+            claim_name = local.p0_pvc_name
             read_only  = false
           }
         }
