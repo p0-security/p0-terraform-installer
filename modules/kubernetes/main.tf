@@ -170,8 +170,7 @@ resource "kubernetes_deployment_v1" "p0_braekhus_proxy" {
             "--jwkPath",
             "/p0-files",
             "--tunnelHost",
-            #"${var.p0_config.org}.braekhus.p0.app", # TODO: fix for dev
-            "black-iron-direwolf.ngrok.app",
+            "${var.p0_config.org}.braekhus.p0.app",
             "--tunnelPort",
             "443"
           ]
@@ -223,7 +222,7 @@ resource "kubernetes_service_account_v1" "p0_service_account" {
   depends_on = [p0_kubernetes_staged.tf-staged-test-cluster]
 }
 
-# Creates secret
+# Creates service account secret
 resource "kubernetes_secret_v1" "p0_service_account_secret" {
   metadata {
     name      = "p0-service-account-secret"
