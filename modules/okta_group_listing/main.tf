@@ -72,5 +72,13 @@ resource "p0_okta_directory_listing" "p0_api_integration" {
   client     = okta_app_oauth.p0_api_integration.client_id
   domain     = p0_okta_directory_listing_staged.p0_api_integration.domain
   jwk        = p0_okta_directory_listing_staged.p0_api_integration.jwk
-  depends_on = [okta_app_oauth_role_assignment.p0_lister_role_assignment]
+
+  depends_on = [
+    okta_admin_role_custom.p0_lister_role,
+    okta_resource_set.p0_all_users_groups,
+    p0_okta_directory_listing_staged.p0_api_integration,
+    okta_app_oauth.p0_api_integration,
+    okta_app_oauth_api_scope.p0_api_integration_scopes,
+    okta_app_oauth_role_assignment.p0_lister_role_assignment,
+  ]
 }

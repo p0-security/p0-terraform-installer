@@ -26,16 +26,19 @@ p0 = {
   org_id = "<your-p0-org-id>"
 }
 
-# Account ID where IAM Identity Center lives (org management or delegated admin).
-identity_center_parent_account_id = "<your-identity-center-parent-account-id>"
-
 aws = {
   # Optional grouping tag for SSH; see https://docs.p0.dev/integrations/resource-integrations/ssh (e.g. p0 request ssh group --name <value>)
   group_key = "environment"
 }
 
 # Used by the SSH integration: SSM VPC endpoints are created in each listed VPC so EC2 instances there can be managed via P0/Systems Manager.
-# To find VPC IDs for a region: AWS Console → VPC → Your VPCs, or CLI: aws ec2 describe-vpcs --region <region> --query 'Vpcs[].[VpcId,Tags[?Key==`Name`].Value|[0]]' --output table
+#
+# To find VPC IDs:
+#   - AWS Console: VPC → Your VPCs (per region).
+#   - CLI (table with VpcId and Name tag):
+#       aws ec2 describe-vpcs --region us-west-1 
+#       aws ec2 describe-vpcs --region us-west-2
+#     For another region, replace <region> in: aws ec2 describe-vpcs --region <region> --query 'Vpcs[].[VpcId,Tags[?Key==`Name`].Value|[0]]' --output table
 regional_aws = {
   us-west-1 = {
     enabled_vpcs                    = ["<your-us-west-1-vpc-id>"]
