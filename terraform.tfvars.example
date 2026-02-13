@@ -31,25 +31,6 @@ aws = {
   group_key = "environment"
 }
 
-kubernetes = {
-  cluster = {
-    # This is the name of the cluster as it will appear in P0; conventionally same as EKS cluster name
-    id = "sandbox-eks-cluster"
-    
-    # In the AWS EKS console, the field is called Cluster ARN
-    arn = "arn:aws:eks:us-west-2:ACCOUNTNUMBER:cluster/CLUSTERNAME"
-    
-    # In the AWS EKS console, the field is called Server API Endpoint
-    endpoint = "https://<RANDOM>.us-west-2.eks.amazonaws.com"
-    
-    # In the AWS EKS console, the field is called Certificate Authority
-    cert_authority = "ARATHERLONGCERTIFICATESTRING"
-    
-    # The region in which the EKS cluster exists
-    region = "us-west-2"
-  }
-}
-
 # Used by the SSH integration: SSM VPC endpoints are created in each listed VPC so EC2 instances there can be managed via P0/Systems Manager.
 #
 # To find VPC IDs:
