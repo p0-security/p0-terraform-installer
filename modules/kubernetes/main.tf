@@ -8,7 +8,6 @@ resource "p0_kubernetes_staged" "tf-staged-test-cluster" {
   certificate_authority = var.kubernetes.cluster.cert_authority
 }
 
-# Creates a namespace on the cluster 
 resource "kubernetes_namespace_v1" "p0_security" {
   metadata {
     name = "p0-security"
@@ -24,7 +23,6 @@ resource "aws_iam_openid_connect_provider" "cluster" {
   thumbprint_list = [data.tls_certificate.cluster.certificates[0].sha1_fingerprint]
 }
 
-# Creates a storage class on the cluster (for auto-mode clusters), which is used by the braekhus proxy service.
 resource "kubernetes_storage_class_v1" "auto_ebs" {
   count = var.kubernetes.cluster.auto_mode_enabled ? 1 : 0
 
@@ -44,7 +42,6 @@ resource "kubernetes_storage_class_v1" "auto_ebs" {
   }
 }
 
-# IAM role for EBS CSI driver (for non-auto-mode clusters)
 resource "aws_iam_role" "ebs_csi_driver" {
   count = var.kubernetes.cluster.auto_mode_enabled ? 0 : 1
 
@@ -70,7 +67,6 @@ resource "aws_iam_role" "ebs_csi_driver" {
   })
 }
 
-# Attach the AWS managed EBS CSI driver policy to the IAM role
 resource "aws_iam_role_policy_attachment" "ebs_csi_driver" {
   count = var.kubernetes.cluster.auto_mode_enabled ? 0 : 1
 
@@ -78,7 +74,6 @@ resource "aws_iam_role_policy_attachment" "ebs_csi_driver" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
 }
 
-# EKS addon for EBS CSI driver (for non-auto-mode clusters)
 resource "aws_eks_addon" "ebs_csi_driver" {
   count = var.kubernetes.cluster.auto_mode_enabled ? 0 : 1
 
@@ -86,7 +81,6 @@ resource "aws_eks_addon" "ebs_csi_driver" {
   addon_name               = "aws-ebs-csi-driver"
   service_account_role_arn = aws_iam_role.ebs_csi_driver[0].arn
 
-  # Allow the addon to be updated if it already exists
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
 
@@ -212,7 +206,6 @@ resource "kubernetes_deployment_v1" "p0_braekhus_proxy" {
   depends_on = [p0_kubernetes_staged.tf-staged-test-cluster]
 }
 
-# Creates service account on the cluster
 resource "kubernetes_service_account_v1" "p0_service_account" {
   metadata {
     name      = "p0-service-account"
@@ -222,7 +215,6 @@ resource "kubernetes_service_account_v1" "p0_service_account" {
   depends_on = [p0_kubernetes_staged.tf-staged-test-cluster]
 }
 
-# Creates service account secret
 resource "kubernetes_secret_v1" "p0_service_account_secret" {
   metadata {
     name      = "p0-service-account-secret"
@@ -237,7 +229,6 @@ resource "kubernetes_secret_v1" "p0_service_account_secret" {
 
 }
 
-# Creates cluster-role and cluster-role binding
 resource "kubernetes_cluster_role_v1" "p0_service_role" {
   metadata {
     name = "p0-service-role"
@@ -445,7 +436,6 @@ resource "kubernetes_validating_webhook_configuration_v1" "p0_admission_controll
   }
 }
 
-# Retrieves JWK public key from the braekhus service
 data "external" "braekhus_public_jwk" {
   program = ["bash", "-c", "kubectl exec deploy/p0-braekhus-proxy -n p0-security -c braekhus -- cat /p0-files/jwk.public.json | jq -c | jq -Rs '{public_jwk: .}'"]
 
