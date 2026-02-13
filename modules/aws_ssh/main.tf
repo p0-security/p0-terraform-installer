@@ -30,4 +30,10 @@ resource "p0_ssh_aws" "ssh" {
   account_id      = var.aws_account_id
   group_key       = var.aws_group_key
   is_sudo_enabled = var.aws_is_sudo_enabled
+
+  depends_on = [
+    module.systems_manager,
+    module.ssm_documents_us_west_1,
+    module.ssm_documents_us_west_2,
+  ]
 }

@@ -81,7 +81,15 @@ resource "aws_iam_role" "p0_iam_resource_lister" {
 
 # Import: terraform import 'module.aws_resource_inventory.p0_aws_inventory.resource_inventory' <id>
 resource "p0_aws_inventory" "resource_inventory" {
-  id         = var.aws_account_id
-  partition  = "aws"
-  depends_on = [aws_iam_role.p0_iam_resource_lister, p0_aws_inventory_staged.resource_inventory_staged]
+  id        = var.aws_account_id
+  partition = "aws"
+
+  depends_on = [
+    aws_resourceexplorer2_index.us_west_1,
+    aws_resourceexplorer2_view.us_west_1,
+    aws_resourceexplorer2_index.us_west_2,
+    aws_resourceexplorer2_view.us_west_2,
+    p0_aws_inventory_staged.resource_inventory_staged,
+    aws_iam_role.p0_iam_resource_lister,
+  ]
 }

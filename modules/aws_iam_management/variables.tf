@@ -1,10 +1,6 @@
-variable "gcp_service_account_id" {
-  description = "The GCP service account ID that P0 uses to access the AWS account"
+variable "iam_inline_policy" {
+  description = "Optional override for the IAM role inline policy (JSON string). If not set, the policy from the P0 staged resource is used."
   type        = string
-}
-
-variable "identity_center_parent_account_id" {
-  description = "Account ID where IAM Identity Center lives (org management or delegated admin)"
-  type        = string
+  default     = null
 }
 

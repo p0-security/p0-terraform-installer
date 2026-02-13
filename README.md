@@ -125,7 +125,6 @@ At a high level you must configure:
   - `p0.org_id` – the identifier for your tenant in P0 (find it in [p0.app](https://p0.app) or in the P0 URL, e.g. `https://p0.app/o/your-org-id`).
 
 - **AWS**
-  - `identity_center_parent_account_id` – AWS account ID that hosts IAM Identity Center. If you are using a delegated account, you must still provide the ID of the parent account here.
   - `aws.group_key` – Optional [grouping tag](https://docs.p0.dev/integrations/resource-integrations/ssh) for SSH (e.g. use with `p0 request ssh group --name <value>`).
   - `regional_aws` – per‑region configuration including:
     - which VPCs are enabled (used for Systems Manager / SSH via SSM VPC endpoints)

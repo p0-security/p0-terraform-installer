@@ -22,8 +22,8 @@ variable "okta" {
 
 variable "p0" {
   type = object({
-    org_id                 = string
-    gcp_service_account_id = optional(string, "106141354930392279110")
+    org_id            = string
+    iam_inline_policy = optional(string)
   })
 }
 
@@ -31,12 +31,6 @@ variable "aws" {
   type = object({
     group_key = optional(string)
   })
-}
-
-# Account ID where the IAM Identity Center instance lives (org management account or delegated admin).
-variable "identity_center_parent_account_id" {
-  type        = string
-  description = "Identity Center parent account ID (org management or delegated admin account)."
 }
 
 # A map of region name to variables for that region
