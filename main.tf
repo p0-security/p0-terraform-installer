@@ -100,9 +100,6 @@ module "okta_group_listing" {
 # **********************************/
 module "aws_iam_management" {
   source = "./modules/aws_iam_management"
-
-  gcp_service_account_id            = var.p0.gcp_service_account_id
-  identity_center_parent_account_id = var.identity_center_parent_account_id
 }
 
 # /******************************************
