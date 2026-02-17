@@ -34,7 +34,7 @@ resource "google_cloud_run_service" "security_perimeter" {
         image = var.security_perimeter_image
         env {
           name  = "DOMAIN_ALLOW_PATTERN"
-          value = ".*@p0[.]dev"
+          value = var.domain_allow_pattern
         }
         env {
           name  = "GCLOUD_PROJECT"

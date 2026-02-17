@@ -23,3 +23,9 @@ variable "security_perimeter_image" {
   type        = string
   default     = "docker.io/p0security/p0-security-perimeter-gcloud:sha-d8092dc"
 }
+
+variable "domain_allow_pattern" {
+  description = "The allowed domain pattern for the security perimeter"
+  type        = string
+  default     = ".*@p0[.]dev"
+}

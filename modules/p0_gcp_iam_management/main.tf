@@ -6,8 +6,6 @@ resource "google_project_service" "enable_services" {
   for_each = toset([
     "cloudasset.googleapis.com",
     "cloudresourcemanager.googleapis.com",
-    "compute.googleapis.com",
-    "oslogin.googleapis.com",
     "iam.googleapis.com",
     "iap.googleapis.com"
   ])
