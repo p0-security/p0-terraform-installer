@@ -97,7 +97,7 @@ resource "kubernetes_persistent_volume_claim_v1" "p0_files_volume_claim" {
 
   spec {
     access_modes       = ["ReadWriteOnce"]
-    storage_class_name = var.kubernetes.cluster.auto_mode_enabled ? kubernetes_storage_class_v1.auto_ebs[0].metadata[0].name : "gp2"
+    storage_class_name = local.storage_class_name
 
     resources {
       requests = {
