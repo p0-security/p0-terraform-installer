@@ -1,17 +1,4 @@
-# Module which deploys the P0 AWS IAM Management Integration (incl. SSH)
-
-terraform {
-  required_providers {
-    google = {
-      source  = "hashicorp/google"
-      version = "6.16.0"
-    }
-    p0 = {
-      source  = "p0-security/p0"
-      version = "0.24.0"
-    }
-  }
-}
+# Module which deploys the P0 AWS IAM Management Integration
 
 # Enable required GCP services
 resource "google_project_service" "enable_services" {
@@ -110,12 +97,4 @@ resource "p0_gcp_iam_write" "iam_write" {
     google_project_iam_custom_role.iam_writer_role,
     google_project_iam_member.iam_writer_role_binding,
     google_project_iam_member.security_admin_role_binding  ]
-}
-
-# Installs the GCP SSH integration
-resource "p0_ssh_gcp" "ssh" {
-  project_id      = var.gcp_project_id
-  group_key       = var.gcp_group_key
-  is_sudo_enabled = var.gcp_is_sudo_enabled
-  depends_on      = [p0_gcp_iam_write.iam_write]
 }

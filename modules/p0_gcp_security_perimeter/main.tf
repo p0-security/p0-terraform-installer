@@ -1,16 +1,3 @@
-terraform {
-  required_providers {
-    google = {
-      source  = "hashicorp/google"
-      version = "6.16.0"
-    }
-    p0 = {
-      source  = "p0-security/p0"
-      version = "0.24.0"
-    }
-  }
-}
-
 # Enable IAM and Cloud Run services
 resource "google_project_service" "enable_services" {
   project = var.gcp_project_id
