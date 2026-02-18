@@ -11,6 +11,7 @@ variable "location" {
 variable "p0_project_id" {
   description = "The project id for the P0 production environment"
   type        = string
+  default     = "p0-prod"
 }
 
 variable "service_account_email" {
