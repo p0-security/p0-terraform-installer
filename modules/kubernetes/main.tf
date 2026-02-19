@@ -15,7 +15,6 @@ resource "kubernetes_namespace_v1" "p0_security" {
 }
 
 resource "aws_iam_openid_connect_provider" "cluster" {
-  count = var.kubernetes.cluster.auto_mode_enabled ? 0 : 1
   url = data.aws_eks_cluster.cluster.identity[0].oidc[0].issuer
 
   client_id_list = ["sts.amazonaws.com"]
@@ -23,28 +22,7 @@ resource "aws_iam_openid_connect_provider" "cluster" {
   thumbprint_list = [data.tls_certificate.cluster.certificates[0].sha1_fingerprint]
 }
 
-resource "kubernetes_storage_class_v1" "auto_ebs" {
-  count = var.kubernetes.cluster.auto_mode_enabled ? 1 : 0
-
-  metadata {
-    name = "auto-ebs-sc"
-    annotations = {
-      "storageclass.kubernetes.io/is-default-class" = "true"
-    }
-  }
-
-  storage_provisioner = "ebs.csi.eks.amazonaws.com"
-  volume_binding_mode = "Immediate"
-
-  parameters = {
-    type      = "gp3"
-    encrypted = "true"
-  }
-}
-
 resource "aws_iam_role" "ebs_csi_driver" {
-  count = var.kubernetes.cluster.auto_mode_enabled ? 0 : 1
-
   name = "AmazonEKS_EBS_CSI_DriverRole_${var.kubernetes.cluster.id}"
 
   assume_role_policy = jsonencode({
@@ -68,15 +46,11 @@ resource "aws_iam_role" "ebs_csi_driver" {
 }
 
 resource "aws_iam_role_policy_attachment" "ebs_csi_driver" {
-  count = var.kubernetes.cluster.auto_mode_enabled ? 0 : 1
-
   role       = aws_iam_role.ebs_csi_driver[0].name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
 }
 
 resource "aws_eks_addon" "ebs_csi_driver" {
-  count = var.kubernetes.cluster.auto_mode_enabled ? 0 : 1
-
   cluster_name             = var.kubernetes.cluster.id
   addon_name               = "aws-ebs-csi-driver"
   service_account_role_arn = aws_iam_role.ebs_csi_driver[0].arn
