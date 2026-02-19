@@ -3,7 +3,6 @@ locals {
   # ARN format: arn:aws:rds:region:account:cluster:cluster-identifier
   rds_cluster_identifier = split(":", var.rds_instance_arn)[6]
 
-  # TODO region should really come from the staged resource, need to add it to metadata there though
   rds_region = split(":", var.rds_instance_arn)[3]
 }
 
