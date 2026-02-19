@@ -16,5 +16,4 @@ variable "rds_instance_arn" {
 variable "db_name" {
   description = "Database name"
   type        = string
-  nullable    = true
 }
