@@ -22,47 +22,6 @@ resource "aws_iam_openid_connect_provider" "cluster" {
   thumbprint_list = [data.tls_certificate.cluster.certificates[0].sha1_fingerprint]
 }
 
-resource "aws_iam_role" "ebs_csi_driver" {
-  name = "AmazonEKS_EBS_CSI_DriverRole_${var.kubernetes.cluster.id}"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Principal = {
-          Federated = aws_iam_openid_connect_provider.cluster[0].arn
-        }
-        Action = "sts:AssumeRoleWithWebIdentity"
-        Condition = {
-          StringEquals = {
-            "${replace(aws_iam_openid_connect_provider.cluster[0].url, "https://", "")}:sub" = "system:serviceaccount:kube-system:ebs-csi-controller-sa"
-            "${replace(aws_iam_openid_connect_provider.cluster[0].url, "https://", "")}:aud" = "sts.amazonaws.com"
-          }
-        }
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "ebs_csi_driver" {
-  role       = aws_iam_role.ebs_csi_driver[0].name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
-}
-
-resource "aws_eks_addon" "ebs_csi_driver" {
-  cluster_name             = var.kubernetes.cluster.id
-  addon_name               = "aws-ebs-csi-driver"
-  service_account_role_arn = aws_iam_role.ebs_csi_driver[0].arn
-
-  resolve_conflicts_on_create = "OVERWRITE"
-  resolve_conflicts_on_update = "OVERWRITE"
-
-  depends_on = [
-    aws_iam_role_policy_attachment.ebs_csi_driver
-  ]
-}
-
 resource "kubernetes_persistent_volume_claim_v1" "p0_files_volume_claim" {
   metadata {
     namespace = kubernetes_namespace_v1.p0_security.metadata[0].name
@@ -71,7 +30,7 @@ resource "kubernetes_persistent_volume_claim_v1" "p0_files_volume_claim" {
 
   spec {
     access_modes       = ["ReadWriteOnce"]
-    storage_class_name = local.storage_class_name
+    storage_class_name = "gp2"
 
     resources {
       requests = {
