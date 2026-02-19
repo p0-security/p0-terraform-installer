@@ -40,3 +40,12 @@ variable "regional_aws" {
     is_resource_explorer_aggregator = bool
   }))
 }
+
+variable "datadog" {
+  type = object({
+    intake_url        = string
+    api_key_cleartext = string
+  })
+  description = "Datadog audit logs configuration"
+  sensitive   = true
+}

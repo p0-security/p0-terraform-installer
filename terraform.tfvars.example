@@ -49,3 +49,9 @@ regional_aws = {
     is_resource_explorer_aggregator = true
   }
 }
+
+datadog = {
+  # Required for Datadog audit logs integration
+  intake_url        = "https://http-intake.logs.us5.datadoghq.com"
+  api_key_cleartext = "<your-datadog-api-key>"
+}

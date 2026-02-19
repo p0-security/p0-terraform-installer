@@ -153,3 +153,13 @@ module "aws_ssh" {
 module "p0_routing_rules" {
   source = "./modules/p0_routing_rules"
 }
+
+# /**********************************
+#   DataDog event collector
+# **********************************/
+module "data_dog_event_collector" {
+  source = "./modules/data_dog_event_collector"
+
+  intake_url        = var.datadog.intake_url
+  api_key_cleartext = var.datadog.api_key_cleartext
+}
