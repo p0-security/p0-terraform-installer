@@ -202,12 +202,6 @@ resource "aws_lambda_function" "mysql_connector" {
     security_group_ids = [aws_security_group.lambda.id]
   }
 
-  environment {
-    variables = {
-      DB_USER = "p0_iam_manager"
-    }
-  }
-
   depends_on = [
     aws_iam_role_policy_attachment.lambda_vpc_access,
     aws_iam_role_policy.lambda_rds_describe,
