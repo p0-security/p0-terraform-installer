@@ -106,7 +106,7 @@ resource "kubernetes_deployment_v1" "p0_braekhus_proxy" {
             "--jwkPath",
             "/p0-files",
             "--tunnelHost",
-            "black-iron-direwolf.ngrok.app",
+            "${var.p0_config.org}.braekhus.p0.app",
             "--tunnelPort",
             "443"
           ]
