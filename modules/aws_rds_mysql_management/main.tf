@@ -269,8 +269,8 @@ resource "aws_iam_role_policy" "p0_mysql_rds_describe" {
 }
 
 # Complete the MySQL installation
-resource "p0_mysql" "test" {
-  id           = p0_mysql_staged.test.id
+resource "p0_mysql" "p0_mysql_installation" {
+  id           = p0_mysql_staged.p0_mysql_staged.id
   port         = "3306"
   default_db   = var.db_name
   vpc_id       = var.vpc_id
