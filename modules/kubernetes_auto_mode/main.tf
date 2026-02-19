@@ -39,7 +39,7 @@ resource "kubernetes_persistent_volume_claim_v1" "p0_files_volume_claim" {
 
   spec {
     access_modes       = ["ReadWriteOnce"]
-    storage_class_name =  kubernetes_storage_class_v1.auto_ebs[0].metadata[0].name
+    storage_class_name =  kubernetes_storage_class_v1.auto_ebs.metadata[0].name
 
     resources {
       requests = {
@@ -322,6 +322,8 @@ resource "kubernetes_deployment_v1" "p0_admission_controller" {
       }
     }
   }
+
+  depends_on = [p0_kubernetes_staged.tf-staged-test-cluster]
 }
 
 resource "kubernetes_service_v1" "p0_admission_controller" {
