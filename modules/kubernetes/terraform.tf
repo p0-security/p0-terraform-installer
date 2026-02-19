@@ -16,6 +16,7 @@ terraform {
 }
 
 provider "p0" {
+  host = var.p0_config.host
   org  = var.p0_config.org
 }
 
