@@ -73,15 +73,6 @@ resource "aws_iam_role_policy" "lambda_rds_describe" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid = "DescribeRdsInstances"
-        Action = [
-          "rds:DescribeDBInstances",
-          "rds:DescribeDBClusters"
-        ]
-        Effect   = "Allow"
-        Resource = "*"
-      },
-      {
         Sid    = "ConnectToRdsCluster"
         Effect = "Allow"
         Action = [
