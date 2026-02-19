@@ -21,20 +21,20 @@ output "resource_id" {
 # Data sources
 data "aws_caller_identity" "current" {}
 
-resource "p0_aws_rds" "test" {
+resource "p0_aws_rds" "p0_rds_installation" {
   id         = var.vpc_id
   account_id = var.aws_account_id
   region     = local.rds_region
 }
 
 # P0 MySQL staged - get Lambda connector metadata
-resource "p0_mysql_staged" "test" {
+resource "p0_mysql_staged" "p0_mysql_staged" {
   id           = "test-aurora-mysql"
   instance_arn = var.rds_instance_arn
   vpc_id       = var.vpc_id
 
   depends_on = [
-    p0_aws_rds.test
+    p0_aws_rds.p0_rds_installation
   ]
 }
 
