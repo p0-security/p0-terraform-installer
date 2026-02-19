@@ -186,7 +186,7 @@ resource "terraform_data" "push_lambda_image" {
         ${aws_ecr_repository.lambda.repository_url}:latest
 
       # Push to ECR
-      docker push ${aws_ecr_repository.lambda.repository_url}:latest
+      docker push ${aws_ecr_repository.lambda.repository_url}:latest --platform linux/amd64
     EOT
   }
 
