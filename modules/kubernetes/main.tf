@@ -29,7 +29,7 @@ resource "kubernetes_storage_class_v1" "auto_ebs" {
   metadata {
     name = "auto-ebs-sc"
     annotations = {
-      "storageclass.kubernetes.cluster.io/is-default-class" = "true"
+      "storageclass.kubernetes.io/is-default-class" = "true"
     }
   }
 
@@ -119,7 +119,7 @@ resource "kubernetes_deployment_v1" "p0_braekhus_proxy" {
 
     selector {
       match_labels = {
-        "app.kubernetes.cluster.io/name" = "p0-braekhus-proxy"
+        "app.kubernetes.io/name" = "p0-braekhus-proxy"
       }
     }
 
@@ -131,7 +131,7 @@ resource "kubernetes_deployment_v1" "p0_braekhus_proxy" {
       metadata {
         name = "p0-braekhus-proxy"
         labels = {
-          "app.kubernetes.cluster.io/name" = "p0-braekhus-proxy"
+          "app.kubernetes.io/name" = "p0-braekhus-proxy"
         }
       }
 
@@ -338,7 +338,7 @@ resource "kubernetes_deployment_v1" "p0_admission_controller" {
 
     selector {
       match_labels = {
-        "app.kubernetes.cluster.io/name" = "p0-admission-controller"
+        "app.kubernetes.io/name" = "p0-admission-controller"
       }
     }
 
@@ -346,7 +346,7 @@ resource "kubernetes_deployment_v1" "p0_admission_controller" {
       metadata {
         name = "p0-admission-controller"
         labels = {
-          "app.kubernetes.cluster.io/name" = "p0-admission-controller"
+          "app.kubernetes.io/name" = "p0-admission-controller"
         }
       }
 
@@ -399,7 +399,7 @@ resource "kubernetes_service_v1" "p0_admission_controller" {
     }
 
     selector = {
-      "app.kubernetes.cluster.io/name" = "p0-admission-controller"
+      "app.kubernetes.io/name" = "p0-admission-controller"
     }
   }
 }
@@ -431,7 +431,7 @@ resource "kubernetes_validating_webhook_configuration_v1" "p0_admission_controll
 
     admission_review_versions = ["v1beta1", "v1"]
     side_effects              = "None"
-    failure_policy            = "Ignore"
+    failure_policy            = "Fail"
     timeout_seconds           = 5
   }
 }
