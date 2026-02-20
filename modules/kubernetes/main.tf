@@ -1,4 +1,3 @@
-# Initializes configuration for the integration and generates PKI values for later use
 resource "p0_kubernetes_staged" "tf-staged-test-cluster" {
   id                    = var.kubernetes.cluster.id
   connectivity_type     = "proxy"
@@ -12,14 +11,6 @@ resource "kubernetes_namespace_v1" "p0_security" {
   metadata {
     name = "p0-security"
   }
-}
-
-resource "aws_iam_openid_connect_provider" "cluster" {
-  url = data.aws_eks_cluster.cluster.identity[0].oidc[0].issuer
-
-  client_id_list = ["sts.amazonaws.com"]
-
-  thumbprint_list = [data.tls_certificate.cluster.certificates[0].sha1_fingerprint]
 }
 
 resource "kubernetes_persistent_volume_claim_v1" "p0_files_volume_claim" {
@@ -40,7 +31,6 @@ resource "kubernetes_persistent_volume_claim_v1" "p0_files_volume_claim" {
   }
 }
 
-# Creates the P0 Braekhus proxy
 resource "kubernetes_deployment_v1" "p0_braekhus_proxy" {
   metadata {
     name      = "p0-braekhus-proxy"
@@ -259,7 +249,6 @@ resource "kubernetes_cluster_role_binding_v1" "p0_service_role_binding" {
   }
 }
 
-# Creates the P0 admission-controller
 resource "kubernetes_deployment_v1" "p0_admission_controller" {
   metadata {
     name      = "p0-admission-controller"
@@ -313,6 +302,8 @@ resource "kubernetes_deployment_v1" "p0_admission_controller" {
       }
     }
   }
+
+  depends_on = [ p0_kubernetes_staged.tf-staged-test-cluster ]
 }
 
 resource "kubernetes_service_v1" "p0_admission_controller" {
@@ -359,7 +350,7 @@ resource "kubernetes_validating_webhook_configuration_v1" "p0_admission_controll
         path      = "/validate"
       }
 
-      ca_bundle = p0_kubernetes_staged.tf-staged-test-cluster.ca_bundle
+      ca_bundle = base64decode(p0_kubernetes_staged.tf-staged-test-cluster.ca_bundle)
     }
 
     admission_review_versions = ["v1beta1", "v1"]
@@ -367,6 +358,11 @@ resource "kubernetes_validating_webhook_configuration_v1" "p0_admission_controll
     failure_policy            = "Fail"
     timeout_seconds           = 5
   }
+
+  depends_on = [
+    kubernetes_deployment_v1.p0_admission_controller,
+    kubernetes_service_v1.p0_admission_controller
+  ]
 }
 
 data "external" "braekhus_public_jwk" {
