@@ -4,7 +4,7 @@
 for the sake of illustration, the code as written assumes that the cluster has a functional EBS-CSI driver addon 
 installed and that a GP2 storage class exists for use by the "p0_files_volume_claim" resource, however 
 this can be modified depending on how your own cluster is configured. Feel free to reach out to P0 support
-if you have questions or encounter an issues.
+if you have questions or encounter any issues.
 
 ## Overview
 This folder contains example terraform code that will integrate P0 with an EKS cluster; 
