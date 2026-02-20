@@ -7,7 +7,7 @@ This module set is intended to bootstrap everything P0 needs to:
 - Authenticate users via Okta
 - Discover Okta groups
 - Grant just-in-time access to AWS IAM permission sets and policies
-- Grant just-in-time access to AWS resources
+- Grant just-in-time access to AWS resources (include EKS resources)
 - Grant just-in-time SSH access to EC2 instances via AWS Systems Manager
 - Define sample routing rules for fine‑grained access control in P0
 
@@ -30,6 +30,14 @@ This module set is intended to bootstrap everything P0 needs to:
     - AWS SSO permission sets / roles
     - policy-based access to AWS resources
   - Integrates with an existing AWS IAM Identity Center (SSO) instance using the configured parent account ID.
+
+- **Kubernetes** (`modules/kubernetes`, `modules/kubernetes_auto_mode`)
+  - Installs P0's Kubernetes integration against an existing EKS cluster.
+    - Creates integration configuration in the P0 backend.
+    - Provisions necessary kubernetes resources (deployments, secrets, etc.)
+    - Verifies connectivity between cluster and P0 via installed proxy.
+  - Allows users to request access to resources in the cluster (routing rules permitting).
+  - Note: requires that AWS IAM management integration has already been configured for the AWS account hosting the EKS cluster.
 
 - **AWS resource inventory**
   - Configures AWS Resource Explorer and supporting IAM policy so P0 can:
@@ -61,6 +69,9 @@ This module set is intended to bootstrap everything P0 needs to:
     - The user applying this terraform must have permission to create and manage:
       - IAM roles, policies, and SSM documents
       - Resource Explorer indexes and views.
+  - If installing a kubernetes integration, must be able to view/modify the targeted EKS cluster.
+      - User should be able to run `aws eks update-kubeconfig --name <cluster name> --region <cluster region>`
+      - User should be able to run `kubectl apply` commands against the targeted cluster.
   - Credentials exported via standard environment variables:
     - `AWS_ACCESS_KEY_ID`
     - `AWS_SECRET_ACCESS_KEY`

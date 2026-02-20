@@ -1,0 +1,23 @@
+kubernetes = {
+  cluster = {
+    # The name of the EKS cluster
+    id = "my-eks-cluster"
+
+    # The cluster ARN
+    arn = "arn:aws:eks:<Region>:<AccountNumber>:cluster/my-eks-cluster"
+
+    # The cluster server API endpoint
+    endpoint = "<ClusterEndpoint>"
+
+    # The cluster certificate authority (base64-encoded)
+    cert_authority = "<Cluster Certificate Authority>"
+    
+    # The region the cluster exists in (e.g. 'us-west-2')
+    region = "<Region>"
+  }
+}
+
+p0_config = {
+    # The name of the P0 org that the integration will be installed in.
+    org  = "demo-org"
+}
