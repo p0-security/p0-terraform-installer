@@ -1,4 +1,4 @@
-# Example: Terraform-Based Installation of K8s Integration
+# Example: Terraform-Based Installation of K8s Integration for Auto-EKS Cluster
 
 **IMPORTANT** This module is only intended to target EKS clusters with Auto-Mode enabled.
 
@@ -7,9 +7,16 @@ it does this by using the P0 terraform providers (p0_kubernetes_staged and p0_ku
 create and verify the installed integration; it also creates kubernetes resources (service accounts,
 proxy deployments, etc) that are necessary for the integration to function.
 
-In order to run `plan/apply/destroy` commands, the following environment variables need to be set
-- P0_API_TOKEN (the value should be an API key generated in the web UI)
-- AWS_ACCESS_KEY_ID
-- AWS_SECRET_ACCESS_KEY
-- AWS_SESSION_TOKEN 
+## Instructions
+1. Run `cd kubernetes_auto_mode` to change your working directory to this folder.
+2. Run `terraform init` to initialize terraform and retrieve provider dependencies.
+3. Create your own `terraform.tfvars` file, containing information on the EKS cluster you wish to install the P0 integration on. See `kubernetes/terraform.tfvars.example` for what this file should look like.
+4. Export required environment variables:
+    - `P0_API_TOKEN`
+    - `AWS_ACCESS_KEY_ID`
+    - `AWS_SECRET_ACCESS_KEY`
+    - `AWS_SESSION_TOKEN`
+5. Run `aws eks update-kubeconfig --name <cluster name> --region <cluster region>`
+6. Run `terraform plan` to view the resources that will be provisioned by this module.
+7. Run `terraform apply` to provision the resources. Once complete, you should see an installed K8s integration appear in the P0 web app, under "Integrations", and you should be able to request access.
 

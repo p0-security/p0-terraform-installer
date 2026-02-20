@@ -1,15 +1,16 @@
-# Example: Terraform-Based Installation of K8s Integration
+# Example: Terraform-Based Installation of K8s Integration for EKS Cluster
+
+**Important** This module is only intended to target clusters that don't have EKS Auto-Mode enabled;
+for the sake of illustration, the code as written assumes that the cluster has a functional EBS-CSI driver addon 
+installed and that a GP2 storage class exists for use by the "p0_files_volume_claim" resource, however 
+this can be modified depending on how your own cluster is configured. Feel free to reach out to P0 support
+if you have questions or encounter an issues.
 
 ## Overview
-This folder contains example terraform code that will integrate P0 with a given EKS cluster; 
-it does this by using the P0 terraform providers (p0_eks_kubernetes_staged and p0_eks_kubernetes) to
+This folder contains example terraform code that will integrate P0 with an EKS cluster; 
+it does this by using the P0 terraform providers (p0_kubernetes_staged and p0_kubernetes) to
 create and verify the installed integration; it also creates kubernetes resources (service accounts,
 proxy deployments, etc) that are necessary for the integration to function.
-
-## EKS Auto-Mode
-This terraform code will provision a modified set of resources depending on whether or not the EKS cluster
-being targeted is configured to use EKS Auto-Mode. The user is currently required to specify whether or not
-this is the case for each cluster.
 
 ## Instructions
 1. Run `cd kubernetes` to change your working directory to this folder.
