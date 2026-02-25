@@ -160,3 +160,16 @@ module "data_dog_event_collector" {
   intake_url        = var.datadog.intake_url
   api_key_cleartext = var.datadog.api_key_cleartext
 }
+
+# /**********************************
+#   AWS RDS MySQL management (RDS + P0 MySQL)
+# **********************************/
+module "mysql_management" {
+  source = "./modules/aws_rds_mysql_management"
+
+  aws_role_name   = var.aws_rds_mysql.aws_role_name
+  vpc_id          = var.aws_rds_mysql.vpc_id
+  aws_account_id  = var.aws_rds_mysql.aws_account_id
+  rds_cluster_arn = var.aws_rds_mysql.rds_cluster_arn
+  db_name         = var.aws_rds_mysql.db_name
+}

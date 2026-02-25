@@ -49,3 +49,14 @@ variable "datadog" {
   description = "Datadog audit logs configuration"
   sensitive   = true
 }
+
+variable "aws_rds_mysql" {
+  type = object({
+    aws_account_id  = optional(string)
+    aws_role_name   = string
+    vpc_id          = string
+    rds_cluster_arn = string
+    db_name         = optional(string)
+  })
+  description = "AWS RDS MySQL management configuration"
+}
