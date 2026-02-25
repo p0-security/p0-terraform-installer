@@ -160,3 +160,23 @@ module "data_dog_event_collector" {
   intake_url        = var.datadog.intake_url
   api_key_cleartext = var.datadog.api_key_cleartext
 }
+
+# /**********************************
+#   AWS RDS MySQL management (RDS + P0 MySQL)
+# **********************************/
+# IMPORTANT: Before running this Terraform configuration, you must first
+# create the p0_iam_manager user in your MySQL database by running the
+# following commands:
+#
+# CREATE USER p0_iam_manager IDENTIFIED WITH AwsAuthenticationPlugin as 'RDS';
+# GRANT ALL ON `%`.* TO p0_iam_manager WITH GRANT OPTION;
+# GRANT CREATE ROLE, CREATE USER, ROLE_ADMIN ON *.* TO p0_iam_manager;
+# **********************************/
+module "mysql_management" {
+  source = "./modules/aws_rds_mysql_management"
+
+  aws_account_id  = var.aws_rds_mysql.aws_account_id
+  db_name         = var.aws_rds_mysql.db_name
+  rds_cluster_arn = var.aws_rds_mysql.rds_cluster_arn
+  vpc_id          = var.aws_rds_mysql.vpc_id
+}
