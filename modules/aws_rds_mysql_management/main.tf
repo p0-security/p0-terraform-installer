@@ -1,5 +1,5 @@
 data "aws_rds_cluster" "database" {
-  cluster_identifier = split(":", var.rds_cluster_arn)[6]
+  cluster_identifier = reverse(split(":", var.rds_cluster_arn))[0]
 }
 
 data "aws_db_subnet_group" "database" {
@@ -73,7 +73,7 @@ module "aws_mysql_install" {
 
   rds_arn                     = local.rds_arn
   connector_security_group_id = module.aws_mysql_connector.connector_security_group.id
-  lambda_execution_role_name  = reverse(split("/", split(":", module.aws_mysql_connector.lambda.role)[6]))[0]
+  lambda_execution_role_name  = reverse(split("/", reverse(split(":", module.aws_mysql_connector.lambda.role))[0]))[0]
 }
 
 resource "p0_mysql" "database" {
