@@ -7,6 +7,7 @@ variable "aws_account_id" {
 variable "aws_role_name" {
   description = "Name of the AWS IAM role for P0"
   type        = string
+  default     = "P0RoleIamManager"
 }
 
 variable "vpc_id" {

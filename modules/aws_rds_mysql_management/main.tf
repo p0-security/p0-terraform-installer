@@ -1,5 +1,5 @@
 data "aws_rds_cluster" "database" {
-  cluster_identifier = reverse(split(":", var.rds_cluster_arn))[0]
+  cluster_identifier = split(":", var.rds_cluster_arn)[6]
 }
 
 data "aws_db_subnet_group" "database" {
@@ -11,12 +11,11 @@ locals {
   aws_iam_role   = var.aws_role_name
   aws_region     = split(":", data.aws_rds_cluster.database.arn)[3]
 
-  rds_id          = data.aws_rds_cluster.database.id
-  rds_arn         = data.aws_rds_cluster.database.arn
-  rds_resource_id = data.aws_rds_cluster.database.cluster_resource_id
-  rds_port        = data.aws_rds_cluster.database.port
-  subnet_ids      = data.aws_db_subnet_group.database.subnet_ids
-  vpc_id          = data.aws_db_subnet_group.database.vpc_id
+  rds_id     = data.aws_rds_cluster.database.id
+  rds_arn    = data.aws_rds_cluster.database.arn
+  rds_port   = data.aws_rds_cluster.database.port
+  subnet_ids = data.aws_db_subnet_group.database.subnet_ids
+  vpc_id     = data.aws_db_subnet_group.database.vpc_id
 
   service    = "mysql"
   default_db = "demo"
@@ -74,7 +73,7 @@ module "aws_mysql_install" {
 
   rds_arn                     = local.rds_arn
   connector_security_group_id = module.aws_mysql_connector.connector_security_group.id
-  lambda_execution_role_name  = reverse(split("/", reverse(split(":", module.aws_mysql_connector.lambda.role))[0]))[0]
+  lambda_execution_role_name  = reverse(split("/", split(":", module.aws_mysql_connector.lambda.role)[6]))[0]
 }
 
 resource "p0_mysql" "database" {

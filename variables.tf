@@ -53,10 +53,10 @@ variable "datadog" {
 variable "aws_rds_mysql" {
   type = object({
     aws_account_id  = optional(string)
-    aws_role_name   = string
-    vpc_id          = string
-    rds_cluster_arn = string
+    aws_role_name   = optional(string)
     db_name         = optional(string)
+    rds_cluster_arn = string
+    vpc_id          = string
   })
   description = "AWS RDS MySQL management configuration"
 }
