@@ -34,7 +34,7 @@ resource "p0_aws_iam_write" "iam_write" {
   partition = "aws"
   login = {
     type   = "idc"
-    parent = local.account_id
+    parent = var.identity_center_account_id
   }
 
   depends_on = [

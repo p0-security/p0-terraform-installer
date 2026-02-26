@@ -30,6 +30,7 @@ This module set is intended to bootstrap everything P0 needs to:
     - AWS SSO permission sets / roles
     - policy-based access to AWS resources
   - Integrates with an existing AWS IAM Identity Center (SSO) instance using the configured parent account ID.
+    - Set `identity_center_account_id` in `terraform.tfvars` to the AWS account that hosts your IAM Identity Center (SSO) instance (either the management account or a delegated admin account).
 
 - **Kubernetes** (`modules/kubernetes`, `modules/kubernetes_auto_mode`)
   - Installs P0's Kubernetes integration against an existing EKS cluster.

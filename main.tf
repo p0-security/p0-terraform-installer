@@ -100,6 +100,7 @@ module "okta_group_listing" {
 # **********************************/
 module "aws_iam_management" {
   source = "./modules/aws_iam_management"
+  identity_center_account_id = var.aws.identity_center_account_id
 }
 
 # /******************************************

@@ -28,7 +28,8 @@ p0 = {
 
 aws = {
   # Optional grouping tag for SSH; see https://docs.p0.dev/integrations/resource-integrations/ssh (e.g. p0 request ssh group --name <value>)
-  group_key = "environment"
+  group_key                  = "environment"
+  identity_center_account_id = "<aws-account-id-with-identity-center-instance>"
 }
 
 # Used by the SSH integration: SSM VPC endpoints are created in each listed VPC so EC2 instances there can be managed via P0/Systems Manager.
