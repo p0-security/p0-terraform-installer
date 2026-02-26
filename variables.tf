@@ -29,7 +29,8 @@ variable "p0" {
 
 variable "aws" {
   type = object({
-    group_key = optional(string)
+    group_key                 = optional(string)
+    identity_center_account_id = string
   })
 }
 

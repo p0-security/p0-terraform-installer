@@ -4,3 +4,8 @@ variable "iam_inline_policy" {
   default     = null
 }
 
+variable "identity_center_account_id" {
+  description = "AWS account ID that hosts IAM Identity Center (SSO); can be either the management account or a delegated admin account."
+  type        = string
+}
+
