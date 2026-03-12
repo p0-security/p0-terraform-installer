@@ -10,6 +10,8 @@ This module set is intended to bootstrap everything P0 needs to:
 - Grant just-in-time access to AWS resources (include EKS resources)
 - Grant just-in-time SSH access to EC2 instances via AWS Systems Manager
 - Define sample routing rules for fine‑grained access control in P0
+- Forward P0 audit log events to Datadog
+- Grant just-in-time access to AWS RDS MySQL databases
 
 ### Integrations provided
 
@@ -23,7 +25,7 @@ This module set is intended to bootstrap everything P0 needs to:
     - **read all groups** (`okta.groups.read`)
   - Creates a service OIDC app that P0 uses to list users and groups, and assigns:
     - appropriate OAuth scopes to the app
-    - the custom “directory lister” admin role to that app, scoped to users and groups.
+    - the custom "directory lister" admin role to that app, scoped to users and groups.
 
 - **AWS IAM management**
   - Provisions IAM roles, policies, and related configuration needed for P0 to request and manage:
@@ -58,6 +60,16 @@ This module set is intended to bootstrap everything P0 needs to:
     - enforce fine‑grained, just‑in‑time access patterns.
   - See [Just-in-time access](https://docs.p0.dev/orchestration/just-in-time-access) and [Integrations](https://docs.p0.dev/integrations/integrations) for more on access control.
 
+- **Datadog audit logs** (`modules/data_dog_event_collector`)
+  - Configures P0 to forward audit log events to a Datadog intake endpoint.
+  - Requires a Datadog intake URL and API key (see `terraform.tfvars.example` for details).
+
+- **AWS RDS MySQL management** (`modules/aws_rds_mysql_management`)
+  - Provisions IAM-authenticated access to AWS RDS MySQL clusters via P0.
+  - Deploys VPC networking, a P0 connector, and database integration resources.
+  - Requires an existing RDS MySQL cluster with a `p0_iam_manager` IAM-authenticated database user (see comments in `main.tf` for setup SQL).
+  - Note: requires that AWS IAM management integration has already been configured for the AWS account hosting the RDS cluster.
+
 ### Prerequisites
 
 - **Terraform**
@@ -87,11 +99,11 @@ This module set is intended to bootstrap everything P0 needs to:
       - `okta.apps.manage` – create and manage OAuth apps (the P0 login app and the P0 API integration app)
       - `okta.apps.read` – read app information
       - `okta.appGrants.manage` – grant scope consent to the API integration app (required for `okta_app_oauth_api_scope`); without this you may see "The access token provided does not contain the required scopes" when applying the okta_group_listing module
-      - `okta.policies.read` and `okta.policies.manage` – the Okta provider reads/sets the default authentication (access) policy when managing OAuth apps; without these you may see “The access token provided does not contain the required scopes” when applying.
+      - `okta.policies.read` and `okta.policies.manage` – the Okta provider reads/sets the default authentication (access) policy when managing OAuth apps; without these you may see "The access token provided does not contain the required scopes" when applying.
         For more information about these scopes, see [Okta OAuth 2.0 scopes](https://developer.okta.com/docs/api/oauth2/) and [Control Terraform access to Okta](https://developer.okta.com/docs/guides/terraform-design-access-security/main/).
     - **If creating a new app:** In the Okta Admin Console go to **Applications → Create App Integration → API Services → Enter a name for the app**.
     - **Regardless if you are using a new app of an existing one:** Add a public key and note the **client ID** and **private key ID**.
-      Store the PEM‑encoded private key (starting with `-----BEGIN PRIVATE KEY-----`) in the `OKTA_API_PRIVATE_KEY` environment variable. You can export a PEM from the Okta UI or use the repo’s `jwk-to-pem.py` script if your key is in JWK form.
+      Store the PEM‑encoded private key (starting with `-----BEGIN PRIVATE KEY-----`) in the `OKTA_API_PRIVATE_KEY` environment variable. You can export a PEM from the Okta UI or use the repo's `jwk-to-pem.py` script if your key is in JWK form.
     - The list of scopes in your Terraform provider config (`okta.tfauth.scopes` in `terraform.tfvars`) must include at least the seven scopes above (and must match what the app is granted in Okta).
 
 - **P0**
@@ -124,7 +136,7 @@ The main configuration is provided via `terraform.tfvars` (not checked into git)
 
 At a high level you must configure:
 
-**Okta login app:** Provide your Okta organization URL and the P0 login app’s **Client ID** to P0 (e.g. in the [P0 app](https://p0.app) or to your P0 contact) so users can sign in with Okta. See [Directory integrations](https://docs.p0.dev/integrations/directory-integrations) and the [Okta integration](https://docs.p0.dev/integrations/directory-integrations/okta) for details. The Client ID is the `login_app_client_id` output of the `okta_login` module; you can add a root-level `output` that references `module.okta_login.login_app_client_id` and run `terraform output` to retrieve it. If you use Okta’s AWS Account Federation (Web SSO), configure this Client ID as the federation app’s **Allowed Web SSO Client**.
+**Okta login app:** Provide your Okta organization URL and the P0 login app's **Client ID** to P0 (e.g. in the [P0 app](https://p0.app) or to your P0 contact) so users can sign in with Okta. See [Directory integrations](https://docs.p0.dev/integrations/directory-integrations) and the [Okta integration](https://docs.p0.dev/integrations/directory-integrations/okta) for details. The Client ID is the `login_app_client_id` output of the `okta_login` module; you can add a root-level `output` that references `module.okta_login.login_app_client_id` and run `terraform output` to retrieve it. If you use Okta's AWS Account Federation (Web SSO), configure this Client ID as the federation app's **Allowed Web SSO Client**.
 
 - **Okta** (two apps are created by this repo: a **login app** and a **group listing app**)
   - `okta.org_name` – your Okta org subdomain.
@@ -143,7 +155,17 @@ At a high level you must configure:
     - which region is the Resource Explorer aggregator.
     - **Note:** This repo currently hard‑codes support for the `us-west-1` and `us-west-2` regions. To change regions you must:
       - add or update aliased `aws` providers in `main.tf` (e.g. `provider "aws" { alias = "eu_west_1" region = "eu-west-1" }`)
-      - update the `aws_resource_inventory` and `aws_ssh` module calls in `main.tf` to pass the new providers and extend `regional_aws` and each module’s regional configuration (e.g. `modules/aws_resource_inventory` and `modules/aws_ssh/systems_manager`).
+      - update the `aws_resource_inventory` and `aws_ssh` module calls in `main.tf` to pass the new providers and extend `regional_aws` and each module's regional configuration (e.g. `modules/aws_resource_inventory` and `modules/aws_ssh/systems_manager`).
+
+- **Datadog**
+  - `datadog.intake_url` – Datadog HTTP intake URL for audit logs (e.g. `https://http-intake.logs.us5.datadoghq.com`).
+  - `datadog.api_key_cleartext` – Datadog API key (sensitive).
+
+- **AWS RDS MySQL**
+  - `aws_rds_mysql.rds_cluster_arn` – ARN of the RDS MySQL cluster.
+  - `aws_rds_mysql.vpc_id` – VPC ID where the RDS cluster resides.
+  - `aws_rds_mysql.aws_account_id` – (optional) AWS account ID.
+  - `aws_rds_mysql.db_name` – (optional) default database name.
 
 ### Backend
 
