@@ -23,7 +23,7 @@ This module set is intended to bootstrap everything P0 needs to:
     - **read all groups** (`okta.groups.read`)
   - Creates a service OIDC app that P0 uses to list users and groups, and assigns:
     - appropriate OAuth scopes to the app
-    - the custom “directory lister” admin role to that app, scoped to users and groups.
+    - the custom "directory lister" admin role to that app, scoped to users and groups.
 
 - **AWS IAM management**
   - Provisions IAM roles, policies, and related configuration needed for P0 to request and manage:
@@ -51,6 +51,16 @@ This module set is intended to bootstrap everything P0 needs to:
     - provisioning SSH users and keys
     - retrieving SSH host keys.
   - See [P0 SSH](https://docs.p0.dev/integrations/resource-integrations/ssh) for prerequisites, CLI usage, and configuring accounts.
+
+- **AWS RDS MySQL management** (`modules/aws_rds_mysql_management`)
+  - Configures P0's integration for just-in-time access to MySQL databases hosted on AWS RDS.
+  - Provisions VPC networking, a P0 connector, and database integration resources so P0 can manage MySQL user access.
+  - Requires a `p0_iam_manager` MySQL user to be pre-created in the target database (see comments in `main.tf` for the required SQL statements).
+  - Note: requires that AWS IAM management integration has already been configured for the AWS account hosting the RDS cluster.
+
+- **Datadog audit logs** (`modules/data_dog_event_collector`)
+  - Configures P0 to forward audit logs to Datadog.
+  - Requires a Datadog intake URL and API key.
 
 - **Sample routing rules**
   - Provides example routing rules that show how P0 can:
@@ -87,11 +97,11 @@ This module set is intended to bootstrap everything P0 needs to:
       - `okta.apps.manage` – create and manage OAuth apps (the P0 login app and the P0 API integration app)
       - `okta.apps.read` – read app information
       - `okta.appGrants.manage` – grant scope consent to the API integration app (required for `okta_app_oauth_api_scope`); without this you may see "The access token provided does not contain the required scopes" when applying the okta_group_listing module
-      - `okta.policies.read` and `okta.policies.manage` – the Okta provider reads/sets the default authentication (access) policy when managing OAuth apps; without these you may see “The access token provided does not contain the required scopes” when applying.
+      - `okta.policies.read` and `okta.policies.manage` – the Okta provider reads/sets the default authentication (access) policy when managing OAuth apps; without these you may see "The access token provided does not contain the required scopes" when applying.
         For more information about these scopes, see [Okta OAuth 2.0 scopes](https://developer.okta.com/docs/api/oauth2/) and [Control Terraform access to Okta](https://developer.okta.com/docs/guides/terraform-design-access-security/main/).
     - **If creating a new app:** In the Okta Admin Console go to **Applications → Create App Integration → API Services → Enter a name for the app**.
     - **Regardless if you are using a new app of an existing one:** Add a public key and note the **client ID** and **private key ID**.
-      Store the PEM‑encoded private key (starting with `-----BEGIN PRIVATE KEY-----`) in the `OKTA_API_PRIVATE_KEY` environment variable. You can export a PEM from the Okta UI or use the repo’s `jwk-to-pem.py` script if your key is in JWK form.
+      Store the PEM‑encoded private key (starting with `-----BEGIN PRIVATE KEY-----`) in the `OKTA_API_PRIVATE_KEY` environment variable. You can export a PEM from the Okta UI or use the repo's `jwk-to-pem.py` script if your key is in JWK form.
     - The list of scopes in your Terraform provider config (`okta.tfauth.scopes` in `terraform.tfvars`) must include at least the seven scopes above (and must match what the app is granted in Okta).
 
 - **P0**
@@ -124,7 +134,7 @@ The main configuration is provided via `terraform.tfvars` (not checked into git)
 
 At a high level you must configure:
 
-**Okta login app:** Provide your Okta organization URL and the P0 login app’s **Client ID** to P0 (e.g. in the [P0 app](https://p0.app) or to your P0 contact) so users can sign in with Okta. See [Directory integrations](https://docs.p0.dev/integrations/directory-integrations) and the [Okta integration](https://docs.p0.dev/integrations/directory-integrations/okta) for details. The Client ID is the `login_app_client_id` output of the `okta_login` module; you can add a root-level `output` that references `module.okta_login.login_app_client_id` and run `terraform output` to retrieve it. If you use Okta’s AWS Account Federation (Web SSO), configure this Client ID as the federation app’s **Allowed Web SSO Client**.
+**Okta login app:** Provide your Okta organization URL and the P0 login app's **Client ID** to P0 (e.g. in the [P0 app](https://p0.app) or to your P0 contact) so users can sign in with Okta. See [Directory integrations](https://docs.p0.dev/integrations/directory-integrations) and the [Okta integration](https://docs.p0.dev/integrations/directory-integrations/okta) for details. The Client ID is the `login_app_client_id` output of the `okta_login` module; you can add a root-level `output` that references `module.okta_login.login_app_client_id` and run `terraform output` to retrieve it. If you use Okta's AWS Account Federation (Web SSO), configure this Client ID as the federation app's **Allowed Web SSO Client**.
 
 - **Okta** (two apps are created by this repo: a **login app** and a **group listing app**)
   - `okta.org_name` – your Okta org subdomain.
@@ -138,12 +148,23 @@ At a high level you must configure:
 
 - **AWS**
   - `aws.group_key` – Optional [grouping tag](https://docs.p0.dev/integrations/resource-integrations/ssh) for SSH (e.g. use with `p0 request ssh group --name <value>`).
+  - `aws.identity_center_account_id` – the AWS account ID that hosts your IAM Identity Center (SSO) instance.
   - `regional_aws` – per‑region configuration including:
     - which VPCs are enabled (used for Systems Manager / SSH via SSM VPC endpoints)
     - which region is the Resource Explorer aggregator.
     - **Note:** This repo currently hard‑codes support for the `us-west-1` and `us-west-2` regions. To change regions you must:
       - add or update aliased `aws` providers in `main.tf` (e.g. `provider "aws" { alias = "eu_west_1" region = "eu-west-1" }`)
-      - update the `aws_resource_inventory` and `aws_ssh` module calls in `main.tf` to pass the new providers and extend `regional_aws` and each module’s regional configuration (e.g. `modules/aws_resource_inventory` and `modules/aws_ssh/systems_manager`).
+      - update the `aws_resource_inventory` and `aws_ssh` module calls in `main.tf` to pass the new providers and extend `regional_aws` and each module's regional configuration (e.g. `modules/aws_resource_inventory` and `modules/aws_ssh/systems_manager`).
+
+- **AWS RDS MySQL** (required if using the `aws_rds_mysql_management` module)
+  - `aws_rds_mysql.rds_cluster_arn` – ARN of the target RDS cluster.
+  - `aws_rds_mysql.vpc_id` – VPC ID where the RDS cluster resides.
+  - `aws_rds_mysql.aws_account_id` – (optional) AWS account ID; defaults to the current caller identity.
+  - `aws_rds_mysql.db_name` – (optional) database name.
+
+- **Datadog** (required if using the `data_dog_event_collector` module)
+  - `datadog.intake_url` – Datadog log intake URL (e.g. `https://http-intake.logs.us5.datadoghq.com`).
+  - `datadog.api_key_cleartext` – Datadog API key.
 
 ### Backend
 
